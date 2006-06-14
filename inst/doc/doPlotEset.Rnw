@@ -1,0 +1,195 @@
+%\VignetteIndexEntry{ABarray automated data analysis on ExprSet object}
+%\VignetteKeywords{Applied Biosystems AB1700}
+%\VignetteDepends{ABarray}
+%\VignettePackage{ABarray}
+
+%- Examples to show how to use doPlotEset and its functionality
+
+\documentclass[10pt]{article}
+
+\title{ABarray doPlotEset Expression Data Analysis}
+\author{
+        Yongming Andrew Sun, Applied Biosystems
+        \\
+		  sunya@appliedbiosystems.com
+}
+
+
+\usepackage{Sweave}
+\usepackage{graphicx}
+
+\newcommand{\Rpackage}[1]{\textit{#1}}
+\newcommand{\Rfunction}[1]{\textit{#1}}
+\newcommand{\Robject}[1]{\texttt{#1}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\textit{#1}}}
+\newcommand{\Rfunarg}[1]{{\textit{#1}}}
+
+\oddsidemargin  -0.2in
+\evensidemargin 0.0in
+\textwidth      6.9in
+\topmargin      -0.75in
+\textheight     9.25in
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+In this example, we will show the utility of \Rfunction{doPlotEset}. This function perform 
+a number of data quality assessment and some statistical analysis (see \Rfunction{doPlotFCT} 
+for fold change and t test, \Rfunction{doANOVA} for one- or two-way ANOVA analysis). 
+
+\subsection{Data Quality Plots}
+\begin{itemize}
+\item
+Boxplot showing distribution of signal range.
+\item
+MA plot showing data distribution and signal variability between hybridizations.
+There might be several MA plots produced. All pairs of hybridizations within the group
+will be plotted if number of pairs is less than 35 pairs. In addition, MA plots will
+be produced for each pairs within subgroup of the group to see signal variability
+between each individual members of the subgroup.
+\item
+CV plot showing amount of variation within replicate hybridizations of each subgroup.
+\item
+Scatterplot showing visually the correlation between any two hybridizations within
+the group. Correlation coefficient is also calculated for each pair.
+\item
+Correlation heatmap showing correlation between any pairs of hybridization. The
+heatmap is color coded to quickly visualize the extent of the correlation.
+\item
+S/N detection concordance. The signal is detected if the probe shows S/N ratio
+equal to or above a user defined threshold (default is 3). The S/N detection
+heatmap shows detection concordance between any pairs of hybridization.
+\end{itemize}
+
+\subsection{Statistical Analysis}
+The function \Rfunction{doPlotEset} accepts a parameter \Rfunarg{test} either
+\Rclass{TRUE} (the default) or \Rclass{FALSE}. If \Rfunarg{test} = \Rclass{TRUE}
+(the default), regular t test will be performed. For details, please refer to
+\Rfunction{doPlotFCT} in \Rpackage{ABarray} package. If there are more than
+two subgroups within the group, pairwise t test will be performed on each pairs
+of subgroup. In addition, one way ANOVA test will also be performed. The t test
+results are written to files and several graphics plots will be produced. ANOVA
+test results are written to file as well if it is performed.
+
+\section{Requred Data and Function Arguments}
+\begin{itemize}
+\item
+An \Robject{exprSet} object. The S/N ratio information is stored in \Robject{se.exprs} 
+slot. This will automatically be created from \Rfunction{ABarray} in \Rpackage{ABarray}
+package. The analysis will filter probes based on S/N >= 3 in 75\% of samples. If S/N 
+is not available, all probes will be used for analysis (no filtering will be applied).
+\item
+An \Rfunarg{group} parameter. The group is a factor that t test should be performed on. 
+The name of the group should correspond to one of the names in experiment design file 
+that define sample type. If there are 3 or more levels for the group, pairwise t test 
+and fold change will be peformed for all possible pairs.
+\item
+An optional \Rfunarg{name} parameter. The name will be used for output filenames to
+distinguish different types of runs. For example, \Rmethod{quantile} to indicate 
+the results were produced after \Rmethod{quantile} process. \Rmethod{raw} to indicate
+the results were produced with raw data. If \Rfunarg{name} is missing, the analysis 
+and output files will still be produced.
+\item
+An optional \Rfunarg{snThresh} parameter. If this is ommitted, default snThresh = 3
+will be used. To use a different threshold, use \Rfunarg{snThresh} = \Rfunarg{newValue}.
+\item
+Parameter \Rfunarg{test}. By default, \Rfunarg{test} = \Rclass{TRUE}. This indicates to
+perform statistical test (\textit{t} test and ANOVA if applicable). To avoid these test, use
+\Rfunarg{test} = \Rclass{FALSE}. For more details about the \textit{t} test and fold change, 
+see \Rfunction{doPlotFCT} function. For more details for ANOVA analysis, see 
+\Rfunction{doANOVA}.
+\end{itemize}
+
+\section{Function Demonstration}
+First let's see what the \Robject{eset} contains
+\begin{Schunk}
+\begin{Sinput}
+> eset
+\end{Sinput}
+\begin{Soutput}
+Expression Set (exprSet) with 
+	32878 genes
+	6 samples
+		 phenoData object with 3 variables and 6 cases
+	 varLabels
+		sampleName: read from file
+		assayName: read from file
+		tissue: read from file
+\end{Soutput}
+\end{Schunk}
+
+Let's check the experiment design and pick a group for testing
+\begin{Schunk}
+\begin{Sinput}
+> pData(eset)
+\end{Sinput}
+\begin{Soutput}
+  sampleName              assayName  tissue
+1         A1 HB003U2_9/2/05_1:55_PM TissueA
+2         A2 HB003U3_9/2/05_2:11_PM TissueA
+3         A3 HB003U8_9/2/05_2:26_PM TissueA
+4         C1 HB003UA_9/2/05_3:24_PM TissueC
+5         C2 HB003UB_9/2/05_3:44_PM TissueC
+6         C3 HB003UD_9/2/05_3:58_PM TissueC
+\end{Soutput}
+\end{Schunk}
+
+Let's begin to perform the analysis
+\begin{Schunk}
+\begin{Sinput}
+> doPlotEset(eset, "tissue", name = "quantile")
+\end{Sinput}
+\begin{Soutput}
+[1] "Creating boxplot for quantile_tissue  ..."
+[1] "Creating MA plot for quantile_tissue"
+[1] "Creating MA Plot quantile_tissue: TissueA ..."
+[1] "Creating CVplot_quantile_tissue_TissueA ..."
+[1] "Creating MA Plot quantile_tissue: TissueC ..."
+[1] "Creating CVplot_quantile_tissue_TissueC ..."
+[1] "Creating scatter plot for quantile_tissue  ..."
+[1] "Creating scatter plot filtering S/N < 3  for quantile_tissue  ..."
+[1] "Creating correlation matrix and plot quantile_tissue  ..."
+[1] "Creating detection concordance plot quantile_tissue ..."
+
+Performing t test between TissueA and TissueC ...
+2 probes had sdev = 0, they were removed in the t test
+[1] "207943" "520680"
+[1] "Creating volcano plot ..."
+[1] "Writing t test result to file:  Result_tissue/DataResult/DetectPct50FCpvalFDR_TissueA-TissueC.csv"
+
+The t test was performed if the probe shows S/N >= 3 in 50% or more samples
+    in either TissueA or TissueC
+The number of probes after filtering is: 21628 
+
+p=0.01, significant probes: 3470
+[1] "Creating Fold Change plot for: TissueA-TissueC pVal 0.01  ..."
+[1] "Clustering was not performed, because there are 3470 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+p=0.05, significant probes: 7595
+[1] "Creating Fold Change plot for: TissueA-TissueC pVal 0.05  ..."
+[1] "Clustering was not performed, because there are 7595 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+FDR=0.01, significant probes: 429
+[1] "Creating Fold Change plot for: TissueA-TissueC FDR 0.01  ..."
+[1] "Creating cluster heatmap for FDR 0.01 using Correlation ..."
+[1] "Creating cluster heatmap for FDR 0.01 using Euclidean ..."
+FDR=0.05, significant probes: 2700
+[1] "Creating Fold Change plot for: TissueA-TissueC FDR 0.05  ..."
+[1] "Clustering was not performed, because there are 2700 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+FDR=0.1, significant probes: 5577
+[1] "Creating Fold Change plot for: TissueA-TissueC FDR 0.1  ..."
+[1] "Clustering was not performed, because there are 5577 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+FDR=0.25, significant probes: 10894
+[1] "Creating Fold Change plot for: TissueA-TissueC FDR 0.25  ..."
+[1] "Clustering was not performed, because there are 10894 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+\end{Soutput}
+\end{Schunk}
+
+\end{document}
+

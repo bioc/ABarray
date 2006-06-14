@@ -1,0 +1,130 @@
+%\VignetteIndexEntry{ABarray gene expression GUI interface}
+%\VignetteKeywords{Applied Biosystems AB1700}
+%\VignetteDepends{ABarray}
+%\VignettePackage{ABarray}
+
+\documentclass[10pt]{article}
+
+\title{AB1700 Microarray Data Analysis}
+\author{
+        Yongming Andrew Sun, Applied Biosystems
+        \\
+		  sunya@appliedbiosystems.com
+}
+
+
+\usepackage{Sweave}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+
+\newcommand{\Rpackage}[1]{\textit{#1}}
+\newcommand{\Rfunction}[1]{\textit{#1}}
+\newcommand{\Robject}[1]{\texttt{#1}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\textit{#1}}}
+\newcommand{\Rfunarg}[1]{{\textit{#1}}}
+
+\oddsidemargin  -0.25in
+\evensidemargin 0.0in
+\textwidth      7.25in
+\topmargin      -0.75in
+\textheight     9.25in
+
+\pagestyle{fancy}
+\rhead{AB1700 Gene Expression}
+\rfoot{ABarray package}
+
+\begin{document}
+
+\maketitle
+
+\section{ABarray GUI}
+The ABarrayGUI can be used to perform analysis on AB1700 output. The analysis
+is the same as the command-line version of \Rpackage{ABarray}. To start the
+GUI, perform the following in R:
+
+\begin{Schunk}
+\begin{Sinput}
+> library(ABarray)
+\end{Sinput}
+\begin{Soutput}
+Loading required package: Biobase
+Loading required package: tools
+
+Welcome to Bioconductor 
+
+	Vignettes contain introductory material.
+	To view, simply type 'openVignette()' or start with 'help(Biobase)'. 
+	For details on reading vignettes, see the openVignette help page.
+
+Loading required package: multtest
+Loading required package: survival
+Loading required package: splines
+
+
+Welcome to Applied Biosystems AB1700
+     This package performs analysis for AB1700
+     gene expression data
+\end{Soutput}
+\begin{Sinput}
+> ABarrayGUI()
+\end{Sinput}
+\begin{Soutput}
+Loading required package: tcltk
+Loading Tcl/Tk interface ... done
+<Tcl>  
+\end{Soutput}
+\end{Schunk}
+
+GUI window starts (Figure~\ref{fig:ab1700gui}). There are several options need to be selected.
+
+\section{GUI options}
+As with the command-line version, two files should be ready before analysis
+can be performed. One is design file, the other one is data file. See 
+document ABarray.pdf for information how to prepare these 2 files.
+
+\begin{itemize}
+\item{DesignFile: } Press \textsf{Browse File} to navigate and select the
+design file. Once design file is selected, the R working directory will
+change to where the design file is located.
+\item{DataFile: } Press \textsf{Bowse File} to navigate and select the
+data file to be used.
+\item{Choose impute function: } There are 2 impute functions available.
+The KNN function requires bioconductor package \Rpackage{impute} to run.
+See online ABarray document for more details about the functions (?ABarray).
+\item{Use \textit{t} test: } If this is selected, \textit{t} test will be
+performed on the specified group (and ANOVA if more than 2 subgroups).
+\item{Specify t test group: } Which group should the \textit{t} test be 
+performed on? Even if you do not intend to perform \textit{t} test, you
+should supply the group information, as the ordering of array experiments
+relies on the group information. The group is automatically selected from
+the design file (the first group in the disign file).
+\item{Specify filtering options}
+\begin{itemize}
+\item{S/N threshold: } The S/N threshold a probe is considered detectable.
+\item{\% Detect Samples: } The percentage of samples in any given subgroup
+in which a probe can be detected in order to be included in \textit{t}
+test or ANOVA analysis. Note, the number is in decimal format.
+\end{itemize}
+\item{Perform Analysis: } Press the button to begin data analysis.
+\end{itemize}
+
+Once the analysis is done, the following message will appear:
+
+\begin{verbatim}
+
+******Analysis completed******
+
+\end{verbatim}
+
+and the GUI window (Figure~\ref{fig:ab1700gui}) will go away.
+
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width=0.5\textwidth]{Figure/ab1700gui.pdf}
+\caption{ABarray GUI window}
+\label{fig:ab1700gui}
+\end{center}
+\end{figure}
+
+\end{document}

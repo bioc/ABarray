@@ -1,0 +1,123 @@
+%\VignetteIndexEntry{ABarray Venn diagram utility}
+%\VignetteKeywords{Applied Biosystems AB1700}
+%\VignetteDepends{ABarray}
+%\VignettePackage{ABarray}
+%- Examples to show how to use doVennDiagram and its functionality
+
+\documentclass[10pt]{article}
+
+\title{ABarray doVennDiagram Venn Diagram}
+\author{
+        Yongming Andrew Sun, Applied Biosystems.
+        \\
+		  sunya@appliedbiosystems.com
+}
+
+\usepackage{Sweave}
+\usepackage{graphicx}
+
+
+\newcommand{\Rpackage}[1]{\textit{#1}}
+\newcommand{\Rfunction}[1]{\textit{#1}}
+\newcommand{\Robject}[1]{\texttt{#1}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\textit{#1}}}
+\newcommand{\Rfunarg}[1]{{\textit{#1}}}
+
+\oddsidemargin  -0.2in
+\evensidemargin 0.0in
+\textwidth      6.9in
+\topmargin      -0.75in
+\textheight     9.25in
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Venn Diagrams are frequently used for examining similarities and differences
+in gene lists generated from different analysis. It is made up of 
+two or more overlapping circles. The functionality of the \Rfunction{doVennDiagram}
+in \Rpackage{ABarray} relies on some functions provided in \Rpackage{limma}
+package.
+
+\section{Required Data}
+\Rfunction{doVennDiagram} accepts two or three vectors of gene lists. If two
+gene lists are provided, two way Venn diagram is produced. If three gene lists
+are provided, three way Venn diagram is produced.
+\begin{itemize}
+\item list1. The first vector of gene list.
+\item list2. The second vector of gene list.
+\item list3. Optional third vector of gene list.
+\item names. The names for use for each list in diagram.
+\end{itemize}
+
+\section{Function Demonstration}
+We will demonstrate two-way and three-way Venn diagram by creating three
+gene lists. Note: the result of joined lists are automatically saved
+into file.
+\begin{itemize}
+\item list1 contains probe names from index 1 to 100
+\item list2 contains probe names from index 61 to 160
+\item list3 contains probe names from index 81 to 200
+\end{itemize}
+
+After these three gene lists are created, we perform \Rfunction{doVennDiagram}.
+
+\begin{Schunk}
+\begin{Sinput}
+> list1 <- geneNames(eset)[1:100]
+> list2 <- geneNames(eset)[61:160]
+> list3 <- geneNames(eset)[81:200]
+> length(list1)
+\end{Sinput}
+\begin{Soutput}
+[1] 100
+\end{Soutput}
+\begin{Sinput}
+> length(list2)
+\end{Sinput}
+\begin{Soutput}
+[1] 100
+\end{Soutput}
+\begin{Sinput}
+> length(list3)
+\end{Sinput}
+\begin{Soutput}
+[1] 120
+\end{Soutput}
+\end{Schunk}
+
+\subsection{Two Way Venn Diagram}
+There are 40 probes common between \Robject{list1} and \Robject{list2}.
+Let's create Venn diagram between \Robject{list1} and \Robject{list2}.
+
+\begin{Schunk}
+\begin{Sinput}
+> doVennDiagram(list1, list2)
+\end{Sinput}
+\begin{Soutput}
+[1] "List information is written to file Venn_list_1+2.csv"
+\end{Soutput}
+\end{Schunk}
+\includegraphics{Figure/venn-twoWay}
+
+
+\subsection{Three way Venn Diagram}
+There are 40 probes common between \Robject{list1} and \Robject{list2}, 
+and 20 probes between \Robject{list1} and \Robject{list3}, and 80 probes
+between \Robject{list2} and \Robject{list3}. Let's create Venn diagram
+between \Robject{list1} and \Robject{list2}.
+
+\begin{Schunk}
+\begin{Sinput}
+> doVennDiagram(list1, list2, list3)
+\end{Sinput}
+\begin{Soutput}
+[1] "List information is written to file Venn_list_1+2+3.csv"
+\end{Soutput}
+\end{Schunk}
+\includegraphics{Figure/venn-threeWay}
+
+
+\end{document}

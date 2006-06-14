@@ -1,0 +1,13 @@
+Package: ABarray
+Title: Perform QA and data analysis. Produce QA graphics and 
+		 some statistics
+Version: 1.1.2
+Date: 2006-06-05
+Author: Yongming Andrew Sun 
+Maintainer: Yongming Andrew Sun <sunya@appliedbiosystems.com>
+Depends: Biobase, multtest
+Suggests: limma
+Description: Perform gene expression analysis with Applied Biosystems
+	Gene Expression data format
+biocViews: Microarray, OneChannel, Preprocessing
+License: GPL

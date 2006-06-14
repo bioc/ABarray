@@ -1,0 +1,164 @@
+%\VignetteIndexEntry{ABarray Fold change and t test analysis}
+%\VignetteKeywords{Applied Biosystems AB1700}
+%\VignetteDepends{ABarray}
+%\VignettePackage{ABarray}
+
+%- Examples to show how to use doPlotFCT and its functionality
+
+\documentclass[10pt]{article}
+
+\title{ABarray doPlotFCT Fold Change and t Test Analysis}
+\author{
+        Yongming Andrew Sun, Applied Biosystems
+        \\
+		  sunya@appliedbiosystems.com
+}
+
+
+\usepackage{Sweave}
+\usepackage{graphicx}
+
+\newcommand{\Rpackage}[1]{\textit{#1}}
+\newcommand{\Rfunction}[1]{\textit{#1}}
+\newcommand{\Robject}[1]{\texttt{#1}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\textit{#1}}}
+\newcommand{\Rfunarg}[1]{{\textit{#1}}}
+
+\oddsidemargin  -0.2in
+\evensidemargin 0.0in
+\textwidth      6.9in
+\topmargin      -0.75in
+\textheight     9.25in
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+In this example, we will show the utility of \Rfunction{doPlotFCT}. This function perform 
+calculation for fold change and \textit{t} test. The \textit{t} test \textit{p} values 
+are adjusted using Benjamini-Hochberg FDR at preset levels: 0.01, 0.05, 0.1, 0.25, and 
+raw \textit{p} values 0.01 (no FDR) and 0.05 (no FDR). The results are written to a cvs 
+file, whose name begin with DetectPctFCpvalFDR and the group name that the test was 
+performed on. In addition, fold change are plotted into graphics for various FDR levels, 
+and volcano plot of fold change and \textit{t} test \textit{p} values are plotted.
+
+The analysis uses S/N ratio for filtering. By default, if a probe is detected in
+50\% or more samples within any subgroup, it is included in the analysis. These thresholds
+can be changed at run time with optional parameters.
+
+If there are less than 800 probes for a particular threshold level, clustering heatmap 
+may also be produced. There will be 2 clustering figures, one uses correlation coefficient
+for clustering, and the other one uses distance for clustering.
+
+The \textit{t} test \textit{p} values will be calculated using R implementation of 
+\textit{t} test assuming unequal variances and using log2 transformed normalized data.
+The fold changes will also be calculated. If a paired \textit{t} test is performed,
+the fold changes will be average of paired fold changes. If not paired \textit{t}
+test, the fold changes will be fold changes of averaged expression values.
+
+\section{Required Data and Function Arguments}
+\begin{itemize}
+\item
+An \Robject{exprSet} object. The S/N ratio information is stored in \Robject{se.exprs} 
+slot. This will automatically be created from \Rfunction{ABarray} in \Rpackage{ABarray}
+package. The analysis will filter probes based on S/N and percentage of samples 
+detectable within subgroups. If S/N is not available, all probes will be used for 
+analysis (no filtering will be applied).
+\item
+An \Rfunarg{group} parameter. The group is a factor that \textit{t} test should be 
+performed on. The name of the group should correspond to one of the names in 
+experiment design file that define sample type. If there are 3 or more levels for 
+the group, pairwise \textit{t} test and fold change will be peformed for all possible pairs.
+\item
+An optional \Rfunarg{grpMember} parameter. If this is missing, all members in the 
+group will be used for analysis. If it is defined and passed to the \Rfunction{doPlotFCT} 
+analysis will be performed only on those members within the group.
+\item{order1}{ optional, For a pairwise comparison the ordering of
+  the first group of replicates}
+\item{order2}{ optional, For a pairwise comparison the ordering of
+  the second group of replicates}
+\item{snThresh}{ optional S/N ratio threshold. Default = 3 }
+\item{detectSample}{ Percentage of samples the probe is detected in order to consider
+  in \textit{t} test. Default = 0.5}
+\end{itemize}
+
+\section{Function Demonstration}
+First let's see what the \Robject{eset} contains
+\begin{Schunk}
+\begin{Sinput}
+> eset
+\end{Sinput}
+\begin{Soutput}
+Expression Set (exprSet) with 
+	32878 genes
+	6 samples
+		 phenoData object with 3 variables and 6 cases
+	 varLabels
+		sampleName: read from file
+		assayName: read from file
+		tissue: read from file
+\end{Soutput}
+\end{Schunk}
+
+Let's check the experiment design and pick a group for testing
+\begin{Schunk}
+\begin{Sinput}
+> pData(eset)
+\end{Sinput}
+\begin{Soutput}
+  sampleName              assayName  tissue
+1         A1 HB003U2_9/2/05_1:55_PM TissueA
+2         A2 HB003U3_9/2/05_2:11_PM TissueA
+3         A3 HB003U8_9/2/05_2:26_PM TissueA
+4         C1 HB003UA_9/2/05_3:24_PM TissueC
+5         C2 HB003UB_9/2/05_3:44_PM TissueC
+6         C3 HB003UD_9/2/05_3:58_PM TissueC
+\end{Soutput}
+\end{Schunk}
+
+Let's begin to perform the analysis
+\begin{Schunk}
+\begin{Sinput}
+> doPlotFCT(eset, "tissue")
+\end{Sinput}
+\begin{Soutput}
+Performing t test between TissueA and TissueC ...
+2 probes had sdev = 0, they were removed in the t test
+[1] "207943" "520680"
+[1] "Creating volcano plot ..."
+[1] "Writing t test result to file:  Result_tissue/DataResult/DetectPct50FCpvalFDR_TissueA-TissueC.csv"
+
+The t test was performed if the probe shows S/N >= 3 in 50% or more samples
+    in either TissueA or TissueC
+The number of probes after filtering is: 21628 
+
+p=0.01, significant probes: 3470
+[1] "Creating Fold Change plot for: TissueA-TissueC pVal 0.01  ..."
+[1] "Clustering was not performed, because there are 3470 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+p=0.05, significant probes: 7595
+[1] "Creating Fold Change plot for: TissueA-TissueC pVal 0.05  ..."
+[1] "Clustering was not performed, because there are 7595 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+FDR=0.01, significant probes: 429
+[1] "Creating Fold Change plot for: TissueA-TissueC FDR 0.01  ..."
+[1] "Creating cluster heatmap for FDR 0.01 using Correlation ..."
+[1] "Creating cluster heatmap for FDR 0.01 using Euclidean ..."
+FDR=0.05, significant probes: 2700
+[1] "Creating Fold Change plot for: TissueA-TissueC FDR 0.05  ..."
+[1] "Clustering was not performed, because there are 2700 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+FDR=0.1, significant probes: 5577
+[1] "Creating Fold Change plot for: TissueA-TissueC FDR 0.1  ..."
+[1] "Clustering was not performed, because there are 5577 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+FDR=0.25, significant probes: 10894
+[1] "Creating Fold Change plot for: TissueA-TissueC FDR 0.25  ..."
+[1] "Clustering was not performed, because there are 10894 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+\end{Soutput}
+\end{Schunk}
+
+\end{document}

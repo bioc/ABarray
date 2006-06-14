@@ -1,0 +1,482 @@
+%\VignetteIndexEntry{ABarray gene expression}
+%\VignetteKeywords{Applied Biosystems AB1700}
+%\VignetteDepends{ABarray}
+%\VignettePackage{ABarray}
+
+\documentclass[10pt]{article}
+
+\title{AB1700 Microarray Data Analysis}
+\author{
+        Yongming Andrew Sun, Applied Biosystems
+		  \\
+		  sunya@appliedbiosystems.com
+}
+
+
+\usepackage{Sweave}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+
+\newcommand{\Rpackage}[1]{\textit{#1}}
+\newcommand{\Rfunction}[1]{\textit{#1}}
+\newcommand{\Robject}[1]{\texttt{#1}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\textit{#1}}}
+\newcommand{\Rfunarg}[1]{{\textit{#1}}}
+
+\oddsidemargin  -0.2in
+\evensidemargin 0.0in
+\textwidth      6.9in
+\topmargin      -0.75in
+\textheight     9.25in
+
+\pagestyle{fancy}
+\rhead{AB1700 Gene Expression}
+\rfoot{ABarray package}
+
+\begin{document}
+
+\setkeys{Gin}{width=0.6\textwidth}
+
+\maketitle
+
+\section{ABarray Package Introduction}
+The package \Rpackage(ABarray) is designed to work with Applied Biosystems
+whole genome microarray platform, as well as any other platform whose data
+can be tranformed into expression data matrix. In the following functions
+described, items 1 and 2 are specific to AB1700 datasets. Items 3 to 9
+can be applied to any datasets. However, for AB1700 data, filtering is
+performed using S/N ratio threshold (default = 3), while filtering is not
+applied to other data.
+
+The package \Rpackage(ABarray) will perform the following functions:
+\begin{enumerate}
+\item
+Read output from AB1700 software output (AB1700 specific)
+\item
+Perform analysis on hybridization control spike-ins (AB1700 specific)
+\item
+Perform raw data QA and associated plots (see \Rfunction{doPlotEset}) including:
+\begin{itemize}
+\item boxplot for signal distrubution range
+\item MA plot for signal distribution and signal variability
+\item CV plot for variation among hybridization replicates
+\item Scatter plot for correlation between hybridization arrays
+\item Correlation heatmap for visualization
+\item S/N detection concordance
+\end{itemize}
+\item
+Perform quantile normalization
+\item
+Repeat data QA after normalization. See \Rfunction{doPlotEset}
+\item
+Perform t test, fold change and ANOVA and produce graphics to visualize t test results.
+The default t test assumes unequal variances. See \Rfunction{doPlotFCT} for more details.
+\item
+Peform LPE for low number of replicates. See \Rfunction{doLPE} 
+for more details
+\item
+For more details on ANOVA analysis, see \Rfunction{doANOVA}
+\item
+For drawing Venn diagram, see \Rfunction{doVennDiagram}
+\end{enumerate}
+
+\section{Required Files and Format}
+To take full advantage of automated process provided by package
+\Rpackage{ABarray}, two files should be available before running
+\Rpackage{ABarray}: a data file and an experiment design file.
+\begin{itemize}
+\item Experiment Design File. The rows of the file are samples 
+or arrays. The first column should be sampleName. Perhaps, sampleName should be 
+concise and no spaces between characters. Additional columns maybe 
+assayName and arrayName (one of these). Additional columns should specify what 
+type of samples. Note: It is best to have assayName the same as in dataFile. 
+See an example of experiment design file (Table~\ref{tab:design}).
+
+\begin{table}[h]
+\begin{center}
+\caption{Experiment design and sample information.}
+\label{tab:design}% latex table generated in R 2.2.0 by xtable 1.2-5 package
+% Tue Mar 28 10:26:15 2006
+\begin{tabular}{rlll}
+\hline
+ & sampleName & assayName & tissue \\
+\hline
+1 & A1 & HB003U2\_9/2/05\_1:55\_PM & TissueA \\
+2 & A2 & HB003U3\_9/2/05\_2:11\_PM & TissueA \\
+3 & A3 & HB003U8\_9/2/05\_2:26\_PM & TissueA \\
+4 & B1 & HB003TV\_9/2/05\_2:41\_PM & TissueB \\
+5 & B2 & HB003TW\_9/2/05\_2:55\_PM & TissueB \\
+6 & B3 & HB003TZ\_9/2/05\_3:10\_PM & TissueB \\
+\hline
+\end{tabular}\end{center}
+\end{table}
+
+In the example (Table~\ref{tab:design}), assayName is included and arrayName 
+is not. There is no need for both assayName and arrayName to be listed in the 
+design file. Note: every column name in the header is ONE word, there needs 
+NO spaces in each word. Make sure sampleName, assayName, arrayName spelled 
+correctly. There is no need to worry about lower case or upper case.
+
+\item Data File. 
+The rows of the file represent probes. The first column is probeID (or Probe 
+Name), the second column is geneID, next set of columns 
+should contain Signal, S/N and FLAGS for all samples. Optionally columns
+with Assay\_Normalized\_Signal, SDEV, CV can be included in the data file, but
+these columns will be ignored in the analysis.
+The columns are: probeID, geneID, Signal, S/N, Flags, and optionally SDEV, 
+CV, and Assay\_Normalized\_Signal.
+
+\item Control Probes. It is optional to have control probes. 
+If they are present, plots will be generated for the control probes, 
+but they will be removed for further analysis. 
+\end{itemize}
+
+
+\section{Data File and Experiment Design File}
+The data file and experiment design file are essential. They should be either
+tab-delimt txt file or comma-delimit csv file. It is very
+important to make these files compliant. If array name in the header of
+data file is present and arrayName is defined in experiment design
+file, arrayName will be used to distinguish which column is for 
+which hybridization sample. In the absence of arrayName in experiment
+design file, assayName will be used to identify which column in 
+data file is for which hybridization sample. It is important to 
+spell assayName in the experiment design file the same as in data
+file. For example, if the assayName in data file is called
+\Rfunarg{HA004J7\_1A\_2}, which will show as 
+\Rfunarg{Signal HA004J7\_1A\_2} in data file, the assayName in
+experiment design file should be called exactly as 
+\Rfunarg{HA004J7\_1A\_2}.
+
+Note: assayName should be unique and not part of another assayName. For example,
+assayName S1 is part of another assayName S11. In this case, S1 is better
+renamed to S01.
+
+Sometimes, there could be more assays in data file than we actually want 
+to analyze. For example, we decided to ignore one or two of the arrays, 
+because the images are bad and there are reasons to exlude these arrays. 
+But instead to delete the related columns in data file, we simply change 
+the experimental design file to just include those arrays we need to 
+analyze. However, on the other hand, if there are more hybridization samples 
+in experiment design file than in data file, it will produce an error, 
+as this does not make sense.
+
+\section{ABarray Function Details}
+
+\subsection{Processing of control probes}
+There are a number of internal control probes for AB1700 Expression Array
+Systems. The QC analysis is performed on the following controls before any
+data normalization.
+\begin{enumerate}
+\item Hybridization Controls.
+\item IVT Labeling Controls.
+\item RT Labeling Controls.
+\item Negative Controls.
+\end{enumerate}
+All other controls are ignored in the analysis. The behavior of signals of the 
+controls are plotted in the figures. The control probes and
+associated measurements are removed before data normalization and transformation.
+
+\subsection{Data normalization and transformation}
+Once the control probes and associated measurements are removed, the quantile
+normalization procedure is applied. The data is then transformed into log2 
+scale. If the imputation is selected (default is to use average imputation),
+the missing value imputation is applied after quantile normalization and log2
+transformation. What is considered missing value? If the \textit{Flag} value of 
+a probe is above 5000 (actually above $2^{12}= 4096$), the signal value of the 
+probe is considered missing value and is replaced with NA. The imputation is
+then performed on these NA values. If 'No imputation' is used, the probe
+signal values are used as is (they are not replaced with NA, nor are they 
+imputed) in the downstream analysis.
+
+There are 3 choices in the program for imputation. 
+\begin{enumerate}
+\item No imputation. Imputation is not performed, and the signal values are
+used as is.
+\item Average imputation. The probe signal values are averaged from other arrays
+in the same subgroup. The missing values are replaced with the averaged probe.
+If there is not enough values to average for certain probes, the signal values
+of these probes remain missing (NA). 
+\item knn imputation. The missing values are imputed using Bioconductor package
+\Rpackage{impute} using default \Rpackage{impute} parameters. See the
+\Rpackage{impute} package for more details about how imputation is performed.
+\end{enumerate}
+
+\subsection{Array QC Analysis}
+A number of array QC analysis is performed and associated figures are 
+generated. The QC analysis is performed on both the pre-normalized data and 
+normalized data.
+\begin{itemize}
+\item boxplot
+\item MA plot
+\item scatter plot
+\item correlation plot
+\item CV plot
+\item percentage of probes detected
+\item probe detection concordance
+\end{itemize}
+
+\subsection{Statistical Analysis for Differential Expression}
+A default two sample \textit{t} test is performed between any 2 subgroups. 
+A probe filtering procedure precedes the \textit{t} test. If a probe is not
+detected (S/N < 3) in both subgroups, it is not included in the \textit{t}
+test. If a probe is not detected in more than 50\% of samples in a subgroup,
+it is not detected in that subgroup. The 50\% is default, and can be set to 
+a different threshold value.
+
+The fold change (FC) and log2(FC) for the detected probes are also calculated.
+The FC is divided into 5 FC bins. In addition, the \textit{p} values from the 
+\textit{t} test are used to calculate adjusted \textit{p} value as FDR using 
+Biocondutor package \Rpackage{multtest}. The FDR is calculated using 
+Benjamini-Hochberg procedure. The results are written into files and plotted
+into MA and volcano plots.
+
+If there are more than 2 subgroups, ANOVA will also be performed. The probe 
+detection threshold (same as \textit{t} test) is also applied.
+
+\subsection{Clustering heatmap}
+The clustering heatmap is also produced if the number of differentially expressed 
+probes is less than 800.
+
+\subsection{Description of Results}
+There are 3 folders generated after the analysis for each group. 
+\begin{itemize}
+\item DataResult. This folder contains several text files. 
+\begin{itemize} 
+\item 'ControlRawData.csv' contains signals of control probes.
+\item 'ProbeImputed\_' contains probeID whose expression measurement may be imputed.
+\item 'QuantileNormalizedExpression' contains quantile normalized, log2
+transformed, and imputed values.
+\item 'RawExpressionData.csv' contains non-normalized, non-imputed raw measurement.
+\item 'ST\_DetectPct' files contain statistical analysis results.
+\end{itemize}
+\item jpgFigure. This folder contains figures in jpg or bitmap format.
+\item pdfFigure. This folder contains figures in pdf format.
+\end{itemize}
+
+
+\section{ABarray Function Demonstration}
+After loading the data file and experiment design file, the ABarray functions
+check to see if control signals are present in data file. If they are 
+present, several plots for control assesement will be produced. The program
+then removes these control probes and perform QA analysis on raw data. It also
+produces a number of plots to visualize those QA assesement. After this,
+it performs quantile normalization and repeat QA assessment for
+quantile normalized data. Futhermore, fold changes between subgroups and 
+\textit{t} test to identify differential expressed genes will be performed
+(and ANOVA if there are more than 2 subgroups in the group).
+
+\subsection{Required Libraries}
+The bioconductor library \Rpackage{Biobase} and \Rpackage{multtest} are 
+required to run ABarray. In addition, several other optional libraries
+may be needed to perform various functions. \Rpackage{impute} is needed 
+if KNN imputation will be performed, \Rpackage{limma} is needed if drawing 
+Venn diagram function is performed.
+
+\subsection{Preparing R for Data Analysis}
+After launching R, we need to set the R working directory to inform R
+where we find data file and design file. It also inform R where to store
+the analysis results and associated figures from the analysis.
+
+To set R working directory, choose \textsf{'Change dir...'} from 
+\textsf{'File'} menu, and a dialog box appears to let you browse which directory 
+(folder) to set as working directory (See Figure~\ref{fig:setWorkDir1} and
+Figure~\ref{fig:setWorkDir2}).
+
+\begin{figure}[htp]
+\begin{minipage}{0.45\textwidth}
+\includegraphics[width=1\textwidth]{Figure/dirChangeFig.pdf}
+\caption{Change R working directory. Select Change dir... from File menu.}
+\label{fig:setWorkDir1}
+\end{minipage}
+\hfill
+\begin{minipage}{0.45\textwidth}
+\includegraphics[width=1\textwidth]{Figure/dirSelectFig.pdf}
+\caption{Browse the directory to set as working directory.}
+\label{fig:setWorkDir2}
+\end{minipage}
+\end{figure}
+
+\subsection{File List in Working Directory}
+To see the content of the working directory, type the following command
+\begin{Schunk}
+\begin{Sinput}
+> dir()
+\end{Sinput}
+\begin{Soutput}
+[1] "ABarray_Example.tex"      "ExperimentDesign.csv"    "RawExpressionABData.txt"
+\end{Soutput}
+\end{Schunk}
+
+\subsection{Loading ABarray library}
+The \Rpackage{ABarray} has to be loaded to perform the automated analysis.
+To load \Rpackage{ABarray}, type the following command after launching R.
+\begin{Schunk}
+\begin{Sinput}
+> library(ABarray)
+\end{Sinput}
+\end{Schunk}
+
+
+\subsection{Performing Automated Expression Analysis}
+The automated gene expression analysis requires only one command. The function
+takes 3 parameter arguments. The first argument is the name of the data file.
+The second argument is the name of the expriment design file. The third
+argument is the name of the experiment group defined in the experiment design
+file on which t test and other analysis should be performed. It will generate
+an \Robject{exprSet} expression value object. 
+
+In the following example, the name of the data file is called 'RawExpressionABData.txt'; 
+the name of the experiment design file is called 'ExperimentDesign.csv'; and the 'tissue'
+is the group name selected to perform analysis on. The expression value object
+is assigned to \Robject{eset} object. Since the 'tissue' has 2 subgroup, ANOVA
+will NOT be performed in this example.
+
+\begin{Schunk}
+\begin{Sinput}
+> eset = ABarray("RawExpressionABData.txt", "ExperimentDesign.csv", "tissue")
+\end{Sinput}
+\begin{Soutput}
+Using assayName to match experiment with signal in file: RawExpressionABData.txt 
+The sample names are:
+[1] "A1" "A2" "A3" "B1" "B2" "B3"
+AssayNames in dataFile: RawExpressionABData.txt 
+[1] "HB003U8_9/2/05_2:26_PM" "HB003U2_9/2/05_1:55_PM" "HB003TZ_9/2/05_3:10_PM" "HB003U3_9/2/05_2:11_PM"
+[5] "HB003TW_9/2/05_2:55_PM" "HB003TV_9/2/05_2:41_PM"
+Reading data from RawExpressionABData.txt ......
+    This may take several minutes....
+Checking data format:::::::::::::::::::||
+
+The results will be in the folder: Result_tissue/ 
+[1] "Creating plot for Signal Hybridization_Control ..."
+[1] "Creating plot for Signal Negative_Control ..."
+[1] "Creating plot for Signal IVT_Kit_Control_BIOB ..."
+[1] "Creating plot for Signal IVT_Kit_Control_BIOC ..."
+[1] "Creating plot for Signal IVT_Kit_Control_BIOD ..."
+[1] "Creating plot for Signal RT_Kit_Control_DAP ..."
+[1] "Creating plot for Signal RT_Kit_Control_LYS ..."
+[1] "Creating plot for Signal RT_Kit_Control_PHE ..."
+
+Perform basic analysis for non-normalized data ...
+[1] "Creating barplot for probes detectable ... QC_DetectableProbeSN3"
+[1] "Creating boxplot for Raw_tissue  ..."
+[1] "Creating correlation matrix and plot Raw_tissue  ..."
+[1] "Creating detection concordance plot Raw_tissue ..."
+Perform Average imputation for probes with FLAG > 5000
+[1] "Array A1 has 72 FLAGS > 5000" "Array A2 has 89 FLAGS > 5000" "Array A3 has 47 FLAGS > 5000"
+[4] "Array B1 has 91 FLAGS > 5000" "Array B2 has 96 FLAGS > 5000" "Array B3 has 75 FLAGS > 5000"
+The signals of each flagged probe were replaced with average signals
+   from replicate arrays within the same subgroup (TissueA, TissueB).
+The imputed probes were written to file: Result_tissue/DataResult/ProbeImputed_tissue.csv 
+
+ Quantile normalized data was saved to:
+     Result_tissue/DataResult/QuantileNormalizedExpression.csv 
+The following probes still contain missing values even after imputation:
+[1] "128976" "215914" "226588" "249634"
+
+The expression data object was saved to R workspace file:
+     ExperimentDesign_eset_28Mar2006.Rdata 
+
+Perform data analysis on Quantile normalized data ...
+[1] "Creating boxplot for Quantile_tissue  ..."
+[1] "Creating MA plot for Quantile_tissue"
+[1] "Creating MA Plot Quantile_tissue: TissueA ..."
+[1] "Creating QC_CVplot_Quantile_tissue_TissueA ..."
+[1] "Creating MA Plot Quantile_tissue: TissueB ..."
+[1] "Creating QC_CVplot_Quantile_tissue_TissueB ..."
+[1] "Creating scatter plot filtering S/N < 3  for Quantile_tissue  ..."
+[1] "Creating correlation matrix and plot Quantile_tissue  ..."
+[1] "Creating detection concordance plot Quantile_tissue ..."
+
+Performing t test between TissueA and TissueB ...
+1 probes had sdev = 0, they were removed in the t test
+[1] "520680"
+[1] "Creating volcano plot ..."
+[1] "Writing t test result to file:  Result_tissue/DataResult/ST_DetectPct50FCpvalFDR_TissueA-TissueB.csv"
+
+The t test was performed if the probe shows S/N >= 3 in 50% or more samples
+    in either TissueA or TissueB
+The number of probes after filtering is: 22323 
+
+p=0.01, significant probes: 12611
+[1] "Creating Fold Change plot for: TissueA-TissueB pVal 0.01  ..."
+[1] "Clustering was not performed, because there are 12611 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+p=0.05, significant probes: 16461
+[1] "Creating Fold Change plot for: TissueA-TissueB pVal 0.05  ..."
+[1] "Clustering was not performed, because there are 16461 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+FDR=0.01, significant probes: 10666
+[1] "Creating Fold Change plot for: TissueA-TissueB FDR 0.01  ..."
+[1] "Clustering was not performed, because there are 10666 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+FDR=0.05, significant probes: 15681
+[1] "Creating Fold Change plot for: TissueA-TissueB FDR 0.05  ..."
+[1] "Clustering was not performed, because there are 15681 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+FDR=0.1, significant probes: 17416
+[1] "Creating Fold Change plot for: TissueA-TissueB FDR 0.1  ..."
+[1] "Clustering was not performed, because there are 17416 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+FDR=0.25, significant probes: 19373
+[1] "Creating Fold Change plot for: TissueA-TissueB FDR 0.25  ..."
+[1] "Clustering was not performed, because there are 19373 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+\end{Soutput}
+\end{Schunk}
+
+\section{Information about Results}
+The function \Rfunction{ABarray} produced a lot of results. In addition,
+it returns a \Robject{exprSet} object. This make it possible to use
+vast amount of packages and functions in Bioconductor (www.bioconductor.com)
+for further statistical analysis, e.g., classification, prediction.
+
+The results will be saved in a folder within the R working directory. The name
+of the folder begins with \textsf{Result\_} and the name of the group. In the
+example run, the fold name is \textsf{Result\_tissue}. There will be 3 directories 
+created inside this folder to store the analysis results: One \textsf{DataResult}
+folder to store normalized signals, \textit{p} values and FDR from \textit{t}
+test, and ANOVA \textit{p} values if ANOVA is performed. One \textsf{jpgFigure}
+folder to store QC and analysis plots, and one \textsf{pdfFigure} folder. In
+\textsf{pdfFigure}, the plots are the same as in \textsf{jpgFigure}, but in
+higer resolution of pdf format.
+
+Now, let's take a look at the \Robject{eset}.
+\begin{Schunk}
+\begin{Sinput}
+> eset
+\end{Sinput}
+\begin{Soutput}
+Expression Set (exprSet) with 
+	32878 genes
+	6 samples
+		 phenoData object with 3 variables and 6 cases
+	 varLabels
+		sampleName: read from file
+		assayName: read from file
+		tissue: read from file
+\end{Soutput}
+\end{Schunk}
+
+We can also check the content of the experiment design by method
+in \Rclass{Bioconductor} package \Rpackage{Biobase}, \Rfunction{pData}.
+
+\begin{Schunk}
+\begin{Sinput}
+> pData(eset)
+\end{Sinput}
+\begin{Soutput}
+  sampleName              assayName  tissue
+1         A1 HB003U2_9/2/05_1:55_PM TissueA
+2         A2 HB003U3_9/2/05_2:11_PM TissueA
+3         A3 HB003U8_9/2/05_2:26_PM TissueA
+4         B1 HB003TV_9/2/05_2:41_PM TissueB
+5         B2 HB003TW_9/2/05_2:55_PM TissueB
+6         B3 HB003TZ_9/2/05_3:10_PM TissueB
+\end{Soutput}
+\end{Schunk}
+
+
+
+\end{document}
