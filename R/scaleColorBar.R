@@ -4,46 +4,45 @@
 
 "scaleColorBar" <-
 function (x, horizontal = FALSE, col = rgcolorsfunc(50), scale = 1:length(x), 
-    k = 10, cLen = 9, ...) 
+          k = 10, cLen = 9, ...) 
 {
-	 x <- unique(sort(as.vector(x)))
-	 scale <- 1:length(x)	
+  x <- unique(sort(as.vector(x)))
+  scale <- 1:length(x)	
 
-    if (is.numeric(x)) {
-        #- x <- x
+  if (is.numeric(x)) {
 		  #- Let's use just a sequence from min to max, not just real value of x
-		  x <- seq(min(x), max(x), (max(x) - min(x)) / length(x))
-        colmap <- col
-    }
-    else {
-        colmap <- x
-        low <- range(scale)[1]
-        high <- range(scale)[2]
-        x <- seq(low, high, length = length(x))
-    }
-
-    if (length(x) > k) 
-        x.small <- seq(x[1], x[length(x)], length = k)
-    else x.small <- x
+    x <- seq(min(x), max(x), (max(x) - min(x)) / length(x))
+    colmap <- col
+  }
+  else {
+    colmap <- x
+    low <- range(scale)[1]
+    high <- range(scale)[2]
+    x <- seq(low, high, length = length(x))
+  }
+  
+  if (length(x) > k) 
+    x.small <- seq(x[1], x[length(x)], length = k)
+  else x.small <- x
 
 	 #- Create appropriate margins
-	 par(mar = c(2, 2, cLen, 5))
-
-    if (horizontal) {
-        image(x, 1, matrix(x, length(x), 1), axes = FALSE, xlab = "", 
-            ylab = "", col = colmap, ...)
-        axis(1, at = rev(x.small), labels = signif(rev(x.small), 
-            2), srt = 270)
-    }
-    if (!horizontal) {
-        image(1, x, matrix(x, 1, length(x)), axes = FALSE, xlab = "", 
-            ylab = "", col = colmap, ...)
-        par(las = 1)
+  par(mar = c(2, 1, cLen, 5))
+  
+  if (horizontal) {
+    image(x, 1, matrix(x, length(x), 1), axes = FALSE, xlab = "", 
+          ylab = "", col = colmap, ...)
+    axis(1, at = rev(x.small), labels = signif(rev(x.small), 
+                                 2), srt = 270)
+  }
+  if (!horizontal) {
+    image(1, x, matrix(x, 1, length(x)), axes = FALSE, xlab = "", 
+          ylab = "", col = colmap, ...)
+    par(las = 1)
         #axis(2, at = rev(x.small), labels = signif(rev(x.small), 2))
-        axis(4, at = rev(x.small), labels = signif(rev(x.small), 3))
-        par(las = 0)
-    }
-    box()
+    axis(4, at = rev(x.small), labels = signif(rev(x.small), 3))
+    par(las = 0)
+  }
+  box()
 }
 
 ##############################################
