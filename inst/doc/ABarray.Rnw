@@ -12,7 +12,7 @@
 		  sunya@appliedbiosystems.com
 }
 
-%\usepackage{Sweave}
+
 \usepackage{graphicx}
 \usepackage{fancyhdr}
 
