@@ -12,8 +12,7 @@
 		  sunya@appliedbiosystems.com
 }
 
-
-\usepackage{Sweave}
+%\usepackage{Sweave}
 \usepackage{graphicx}
 \usepackage{fancyhdr}
 
@@ -39,6 +38,7 @@
 \setkeys{Gin}{width=0.6\textwidth}
 
 \maketitle
+\tableofcontents
 
 \section{ABarray Package Introduction}
 The package \Rpackage(ABarray) is designed to work with Applied Biosystems
@@ -81,7 +81,7 @@ For more details on ANOVA analysis, see \Rfunction{doANOVA}
 For drawing Venn diagram, see \Rfunction{doVennDiagram}
 \end{enumerate}
 
-\section{Required Files and Format}
+\subsection{Required Files and Format}
 To take full advantage of automated process provided by package
 \Rpackage{ABarray}, two files should be available before running
 \Rpackage{ABarray}: a data file and an experiment design file.
@@ -91,13 +91,12 @@ or arrays. The first column should be sampleName. Perhaps, sampleName should be
 concise and no spaces between characters. Additional columns maybe 
 assayName and arrayName (one of these). Additional columns should specify what 
 type of samples. Note: It is best to have assayName the same as in dataFile. 
-See an example of experiment design file (Table~\ref{tab:design}).
+See an example of experiment design file (Table~\ref{tab:design1}).
 
 \begin{table}[h]
 \begin{center}
 \caption{Experiment design and sample information.}
-\label{tab:design}% latex table generated in R 2.2.0 by xtable 1.2-5 package
-% Tue Mar 28 10:26:15 2006
+\label{tab:design1}
 \begin{tabular}{rlll}
 \hline
  & sampleName & assayName & tissue \\
@@ -112,7 +111,7 @@ See an example of experiment design file (Table~\ref{tab:design}).
 \end{tabular}\end{center}
 \end{table}
 
-In the example (Table~\ref{tab:design}), assayName is included and arrayName 
+In the example (Table~\ref{tab:design1}), assayName is included and arrayName 
 is not. There is no need for both assayName and arrayName to be listed in the 
 design file. Note: every column name in the header is ONE word, there needs 
 NO spaces in each word. Make sure sampleName, assayName, arrayName spelled 
@@ -133,7 +132,7 @@ but they will be removed for further analysis.
 \end{itemize}
 
 
-\section{Data File and Experiment Design File}
+\subsection{Data File and Experiment Design File}
 The data file and experiment design file are essential. They should be either
 tab-delimt txt file or comma-delimit csv file. It is very
 important to make these files compliant. If array name in the header of
@@ -162,9 +161,9 @@ analyze. However, on the other hand, if there are more hybridization samples
 in experiment design file than in data file, it will produce an error, 
 as this does not make sense.
 
-\section{ABarray Function Details}
+\subsection{ABarray Function Details}
 
-\subsection{Processing of control probes}
+\subsubsection{Processing of control probes}
 There are a number of internal control probes for AB1700 Expression Array
 Systems. The QC analysis is performed on the following controls before any
 data normalization.
@@ -178,7 +177,7 @@ All other controls are ignored in the analysis. The behavior of signals of the
 controls are plotted in the figures. The control probes and
 associated measurements are removed before data normalization and transformation.
 
-\subsection{Data normalization and transformation}
+\subsubsection{Data normalization and transformation}
 Once the control probes and associated measurements are removed, the quantile
 normalization procedure is applied. The data is then transformed into log2 
 scale. If the imputation is selected (default is to use average imputation),
@@ -203,7 +202,7 @@ of these probes remain missing (NA).
 \Rpackage{impute} package for more details about how imputation is performed.
 \end{enumerate}
 
-\subsection{Array QC Analysis}
+\subsubsection{Array QC Analysis}
 A number of array QC analysis is performed and associated figures are 
 generated. The QC analysis is performed on both the pre-normalized data and 
 normalized data.
@@ -217,7 +216,7 @@ normalized data.
 \item probe detection concordance
 \end{itemize}
 
-\subsection{Statistical Analysis for Differential Expression}
+\subsubsection{Statistical Analysis for Differential Expression}
 A default two sample \textit{t} test is performed between any 2 subgroups. 
 A probe filtering procedure precedes the \textit{t} test. If a probe is not
 detected (S/N < 3) in both subgroups, it is not included in the \textit{t}
@@ -235,11 +234,11 @@ into MA and volcano plots.
 If there are more than 2 subgroups, ANOVA will also be performed. The probe 
 detection threshold (same as \textit{t} test) is also applied.
 
-\subsection{Clustering heatmap}
+\subsubsection{Clustering heatmap}
 The clustering heatmap is also produced if the number of differentially expressed 
 probes is less than 800.
 
-\subsection{Description of Results}
+\subsubsection{Description of Results}
 There are 3 folders generated after the analysis for each group. 
 \begin{itemize}
 \item DataResult. This folder contains several text files. 
@@ -298,6 +297,7 @@ Figure~\ref{fig:setWorkDir2}).
 \end{minipage}
 \end{figure}
 
+
 \subsection{File List in Working Directory}
 To see the content of the working directory, type the following command
 \begin{Schunk}
@@ -312,11 +312,16 @@ To see the content of the working directory, type the following command
 \subsection{Loading ABarray library}
 The \Rpackage{ABarray} has to be loaded to perform the automated analysis.
 To load \Rpackage{ABarray}, type the following command after launching R.
-\begin{Schunk}
-\begin{Sinput}
-> library(ABarray)
-\end{Sinput}
-\end{Schunk}
+
+<<loadLib>>=
+library(ABarray)
+@ 
+
+%\begin{Schunk}
+%\begin{Sinput}
+%> library(ABarray)
+%\end{Sinput}
+%\end{Schunk}
 
 
 \subsection{Performing Automated Expression Analysis}
@@ -426,7 +431,7 @@ FDR=0.25, significant probes: 19373
 \end{Soutput}
 \end{Schunk}
 
-\section{Information about Results}
+\section{Information about QC and Analysis Results}
 The function \Rfunction{ABarray} produced a lot of results. In addition,
 it returns a \Robject{exprSet} object. This make it possible to use
 vast amount of packages and functions in Bioconductor (www.bioconductor.com)
@@ -477,6 +482,736 @@ in \Rclass{Bioconductor} package \Rpackage{Biobase}, \Rfunction{pData}.
 \end{Soutput}
 \end{Schunk}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%- Function doPlotEset
+\section{Data Analysis on eSet object: doPlotEset}
+In this example, we will show the utility of \Rfunction{doPlotEset}. This function perform
+a number of data quality assessment and some statistical analysis (see \Rfunction{doPlotFCT}
+for fold change and t test, \Rfunction{doANOVA} for one- or two-way ANOVA analysis).
+
+\subsection{Data Quality Plots}
+\begin{itemize}
+\item
+Boxplot showing distribution of signal range.
+\item
+MA plot showing data distribution and signal variability between hybridizations.
+There might be several MA plots produced. All pairs of hybridizations within the group
+will be plotted if number of pairs is less than 35 pairs. In addition, MA plots will
+be produced for each pairs within subgroup of the group to see signal variability
+between each individual members of the subgroup.
+\item
+CV plot showing amount of variation within replicate hybridizations of each subgroup.
+\item
+Scatterplot showing visually the correlation between any two hybridizations within
+the group. Correlation coefficient is also calculated for each pair.
+\item
+Correlation heatmap showing correlation between any pairs of hybridization. The
+heatmap is color coded to quickly visualize the extent of the correlation.
+\item
+S/N detection concordance. The signal is detected if the probe shows S/N ratio
+equal to or above a user defined threshold (default is 3). The S/N detection
+heatmap shows detection concordance between any pairs of hybridization.
+\end{itemize}
+
+\subsection{Statistical Analysis}
+The function \Rfunction{doPlotEset} accepts a parameter \Rfunarg{test} either
+\Rclass{TRUE} (the default) or \Rclass{FALSE}. If \Rfunarg{test} = \Rclass{TRUE}
+(the default), regular t test will be performed. For details, please refer to
+\Rfunction{doPlotFCT} in \Rpackage{ABarray} package. If there are more than
+two subgroups within the group, pairwise t test will be performed on each pairs
+of subgroup. In addition, one way ANOVA test will also be performed. The t test
+results are written to files and several graphics plots will be produced. ANOVA
+test results are written to file as well if it is performed.
+
+\subsection{Requred Data and Function Arguments}
+\begin{itemize}
+\item
+An \Robject{exprSet} object. The S/N ratio information is stored in \Robject{se.exprs}
+slot. This will automatically be created from \Rfunction{ABarray} in \Rpackage{ABarray}
+package. The analysis will filter probes based on S/N >= 3 in 75\% of samples. If S/N
+is not available, all probes will be used for analysis (no filtering will be applied).
+\item
+An \Rfunarg{group} parameter. The group is a factor that t test should be performed on.
+The name of the group should correspond to one of the names in experiment design file
+that define sample type. If there are 3 or more levels for the group, pairwise t test
+and fold change will be peformed for all possible pairs.
+\item
+An optional \Rfunarg{name} parameter. The name will be used for output filenames to
+distinguish different types of runs. For example, \Rmethod{quantile} to indicate
+the results were produced after \Rmethod{quantile} process. \Rmethod{raw} to indicate
+the results were produced with raw data. If \Rfunarg{name} is missing, the analysis
+and output files will still be produced.
+\item
+An optional \Rfunarg{snThresh} parameter. If this is ommitted, default snThresh = 3
+will be used. To use a different threshold, use \Rfunarg{snThresh} = \Rfunarg{newValue}.
+\item
+Parameter \Rfunarg{test}. By default, \Rfunarg{test} = \Rclass{TRUE}. This indicates to
+perform statistical test (\textit{t} test and ANOVA if applicable). To avoid these test, use
+\Rfunarg{test} = \Rclass{FALSE}. For more details about the \textit{t} test and fold change,
+see \Rfunction{doPlotFCT} function. For more details for ANOVA analysis, see
+\Rfunction{doANOVA}.
+\end{itemize}
+
+\subsection{doPlotEset Function Demonstration}
+First let's see what the \Robject{eset} contains
+\begin{Schunk}
+\begin{Sinput}
+> eset
+\end{Sinput}
+\begin{Soutput}
+Expression Set (exprSet) with
+	32878 genes
+	6 samples
+		 phenoData object with 3 variables and 6 cases
+	 varLabels
+		sampleName: read from file
+		assayName: read from file
+		tissue: read from file
+\end{Soutput}
+\end{Schunk}
+
+Let's check the experiment design and pick a group for testing
+\begin{Schunk}
+\begin{Sinput}
+> pData(eset)
+\end{Sinput}
+\begin{Soutput}
+  sampleName              assayName  tissue
+1         A1 HB003U2_9/2/05_1:55_PM TissueA
+2         A2 HB003U3_9/2/05_2:11_PM TissueA
+3         A3 HB003U8_9/2/05_2:26_PM TissueA
+4         C1 HB003UA_9/2/05_3:24_PM TissueC
+5         C2 HB003UB_9/2/05_3:44_PM TissueC
+6         C3 HB003UD_9/2/05_3:58_PM TissueC
+\end{Soutput}
+\end{Schunk}
+
+Let's begin to perform the analysis
+\begin{Schunk}
+\begin{Sinput}
+> doPlotEset(eset, "tissue", name = "quantile")
+\end{Sinput}
+\begin{Soutput}
+[1] "Creating boxplot for quantile_tissue  ..."
+[1] "Creating MA plot for quantile_tissue"
+[1] "Creating MA Plot quantile_tissue: TissueA ..."
+[1] "Creating CVplot_quantile_tissue_TissueA ..."
+[1] "Creating MA Plot quantile_tissue: TissueC ..."
+[1] "Creating CVplot_quantile_tissue_TissueC ..."
+[1] "Creating scatter plot for quantile_tissue  ..."
+[1] "Creating scatter plot filtering S/N < 3  for quantile_tissue  ..."
+[1] "Creating correlation matrix and plot quantile_tissue  ..."
+[1] "Creating detection concordance plot quantile_tissue ..."
+
+Performing t test between TissueA and TissueC ...
+2 probes had sdev = 0, they were removed in the t test
+[1] "207943" "520680"
+[1] "Creating volcano plot ..."
+[1] "Writing t test result to file:  Result_tissue/DataResult/DetectPct50FCpvalFDR_TissueA-TissueC.csv"
+
+The t test was performed if the probe shows S/N >= 3 in 50% or more samples
+    in either TissueA or TissueC
+The number of probes after filtering is: 21628
+
+p=0.01, significant probes: 3470
+[1] "Creating Fold Change plot for: TissueA-TissueC pVal 0.01  ..."
+[1] "Clustering was not performed, because there are 3470 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+p=0.05, significant probes: 7595
+[1] "Creating Fold Change plot for: TissueA-TissueC pVal 0.05  ..."
+[1] "Clustering was not performed, because there are 7595 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+FDR=0.01, significant probes: 429
+[1] "Creating Fold Change plot for: TissueA-TissueC FDR 0.01  ..."
+[1] "Creating cluster heatmap for FDR 0.01 using Correlation ..."
+[1] "Creating cluster heatmap for FDR 0.01 using Euclidean ..."
+FDR=0.05, significant probes: 2700
+[1] "Creating Fold Change plot for: TissueA-TissueC FDR 0.05  ..."
+[1] "Clustering was not performed, because there are 2700 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+FDR=0.1, significant probes: 5577
+[1] "Creating Fold Change plot for: TissueA-TissueC FDR 0.1  ..."
+[1] "Clustering was not performed, because there are 5577 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+FDR=0.25, significant probes: 10894
+[1] "Creating Fold Change plot for: TissueA-TissueC FDR 0.25  ..."
+[1] "Clustering was not performed, because there are 10894 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+\end{Soutput}
+\end{Schunk}
+
+%-  End funciton doPlotEset
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%- Function doPlotFCT
+\section{Fold Change and t test: doPlotFCT}
+In this example, we will show the utility of \Rfunction{doPlotFCT}. This function perform
+calculation for fold change and \textit{t} test. The \textit{t} test \textit{p} values
+are adjusted using Benjamini-Hochberg FDR at preset levels: 0.01, 0.05, 0.1, 0.25, and
+raw \textit{p} values 0.01 (no FDR) and 0.05 (no FDR). The results are written to a cvs
+file, whose name begin with DetectPctFCpvalFDR and the group name that the test was
+performed on. In addition, fold change are plotted into graphics for various FDR levels,
+and volcano plot of fold change and \textit{t} test \textit{p} values are plotted.
+
+The analysis uses S/N ratio for filtering. By default, if a probe is detected in
+50\% or more samples within any subgroup, it is included in the analysis. These thresholds
+can be changed at run time with optional parameters.
+
+If there are less than 800 probes for a particular threshold level, clustering heatmap
+may also be produced. There will be 2 clustering figures, one uses correlation coefficient
+for clustering, and the other one uses distance for clustering.
+
+The \textit{t} test \textit{p} values will be calculated using R implementation of
+\textit{t} test assuming unequal variances and using log2 transformed normalized data.
+The fold changes will also be calculated. If a paired \textit{t} test is performed,
+the fold changes will be average of paired fold changes. If not paired \textit{t}
+test, the fold changes will be fold changes of averaged expression values.
+
+\subsection{Required Data and Function Arguments}
+\begin{itemize}
+\item
+An \Robject{exprSet} object. The S/N ratio information is stored in \Robject{se.exprs}
+slot. This will automatically be created from \Rfunction{ABarray} in \Rpackage{ABarray}
+package. The analysis will filter probes based on S/N and percentage of samples
+detectable within subgroups. If S/N is not available, all probes will be used for
+analysis (no filtering will be applied).
+\item
+An \Rfunarg{group} parameter. The group is a factor that \textit{t} test should be
+performed on. The name of the group should correspond to one of the names in
+experiment design file that define sample type. If there are 3 or more levels for
+the group, pairwise \textit{t} test and fold change will be peformed for all possible pairs.
+\item
+An optional \Rfunarg{grpMember} parameter. If this is missing, all members in the
+group will be used for analysis. If it is defined and passed to the \Rfunction{doPlotFCT}
+analysis will be performed only on those members within the group.
+\item{order1}{ optional, For a pairwise comparison the ordering of
+  the first group of replicates}
+\item{order2}{ optional, For a pairwise comparison the ordering of
+  the second group of replicates}
+\item{snThresh}{ optional S/N ratio threshold. Default = 3 }
+\item{detectSample}{ Percentage of samples the probe is detected in order to consider
+  in \textit{t} test. Default = 0.5}
+\end{itemize}
+
+\subsection{doPlotFCT Function Demonstration}
+First let's see what the \Robject{eset} contains
+\begin{Schunk}
+\begin{Sinput}
+> eset
+\end{Sinput}
+\begin{Soutput}
+Expression Set (exprSet) with
+	32878 genes
+	6 samples
+		 phenoData object with 3 variables and 6 cases
+	 varLabels
+		sampleName: read from file
+		assayName: read from file
+		tissue: read from file
+\end{Soutput}
+\end{Schunk}
+
+Let's check the experiment design and pick a group for testing
+\begin{Schunk}
+\begin{Sinput}
+> pData(eset)
+\end{Sinput}
+\begin{Soutput}
+  sampleName              assayName  tissue
+1         A1 HB003U2_9/2/05_1:55_PM TissueA
+2         A2 HB003U3_9/2/05_2:11_PM TissueA
+3         A3 HB003U8_9/2/05_2:26_PM TissueA
+4         C1 HB003UA_9/2/05_3:24_PM TissueC
+5         C2 HB003UB_9/2/05_3:44_PM TissueC
+6         C3 HB003UD_9/2/05_3:58_PM TissueC
+\end{Soutput}
+\end{Schunk}
+
+Let's begin to perform the analysis
+\begin{Schunk}
+\begin{Sinput}
+> doPlotFCT(eset, "tissue")
+\end{Sinput}
+\begin{Soutput}
+Performing t test between TissueA and TissueC ...
+2 probes had sdev = 0, they were removed in the t test
+[1] "207943" "520680"
+[1] "Creating volcano plot ..."
+[1] "Writing t test result to file:  Result_tissue/DataResult/DetectPct50FCpvalFDR_TissueA-TissueC.csv"
+
+The t test was performed if the probe shows S/N >= 3 in 50% or more samples
+    in either TissueA or TissueC
+The number of probes after filtering is: 21628
+
+p=0.01, significant probes: 3470
+[1] "Creating Fold Change plot for: TissueA-TissueC pVal 0.01  ..."
+[1] "Clustering was not performed, because there are 3470 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+p=0.05, significant probes: 7595
+[1] "Creating Fold Change plot for: TissueA-TissueC pVal 0.05  ..."
+[1] "Clustering was not performed, because there are 7595 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+FDR=0.01, significant probes: 429
+[1] "Creating Fold Change plot for: TissueA-TissueC FDR 0.01  ..."
+[1] "Creating cluster heatmap for FDR 0.01 using Correlation ..."
+[1] "Creating cluster heatmap for FDR 0.01 using Euclidean ..."
+FDR=0.05, significant probes: 2700
+[1] "Creating Fold Change plot for: TissueA-TissueC FDR 0.05  ..."
+[1] "Clustering was not performed, because there are 2700 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+FDR=0.1, significant probes: 5577
+[1] "Creating Fold Change plot for: TissueA-TissueC FDR 0.1  ..."
+[1] "Clustering was not performed, because there are 5577 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+FDR=0.25, significant probes: 10894
+[1] "Creating Fold Change plot for: TissueA-TissueC FDR 0.25  ..."
+[1] "Clustering was not performed, because there are 10894 probes."
+[1] "    The limit of probe counts for clustering is: 800"
+\end{Soutput}
+\end{Schunk}
+
+%- End function doPlotFCT
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%- Funciton doANOVA
+\section{ANOVA analysis}
+The function \Rfunction{doANOVA} in package \Rpackage{ABarray} is designed
+to perform one way or two way ANOVA analysis. If only one factor is provided
+in parameter, one way ANOVA is performed. If two factors are provided,
+two way ANOVA is performed.
+
+The S/N ratio will be used to perform filtering. If a probe is detected
+(S/N >= 3, default value) in 50\% (default value) or more samples within
+any subgroups, it is included in the ANOVA analysis. If a probe is not
+detected in 50\% or more samples in all the subgroups, it is removed
+from ANOVA analysis.
+
+\subsection{Required Data Object}
+The function \Rfunction{doANOVA} works on either an \Rclass{exprSet} object
+or expression \Robject{matrix}. If \Rclass{exprSet} object is used, experiment
+design information should be already in the \Rclass{exprSet} object. If
+expression matrix is used, rows of the matrix should be probes or genes,
+and columns of the matrix should be hybridization (or arrays).
+
+\begin{itemize}
+\item \Robject{exprSet} object. The object can be generated from function
+\Rfunction{ABarray} in package \Rpackage{ABarray}. For additional information
+about functionality of \Rfunction{ABarray}, refer to document from
+\Rfunction{ABarray}. The object can also be generated from other packages
+in \Rpackage{Bioconductor} project. See www.bioconductor.org for more
+information about other packages.
+\item factor1. Factor name that the ANOVA test will be performed on.
+If \Robject{exprSet} object is used, either name or labels can be used. The name
+should be present in experiment design informaton in \Robject{exprSet} object.
+Function \Rfunction{ABarray} in package \Rpackage{ABarray} automatically creates
+such information if appropriate experiment design file is used when function
+\Rfunction{ABarray} was run. If expression matrix is to be used, \Robject{lables}
+should be used. A \Robject{label} is a vector which labels each hybridization
+(or array) into groups. For example, a \Robject{label} <- c('drug1', 'drug1',
+'drug2', 'drug2', 'none', 'none') indicates samples for arrays 1 and 2 were
+treated with drug1, and samples for arrays 5 and 6 were not treated.
+\item optional factor2. If the second factor is provided, two way ANOVA will
+be performed.
+\end{itemize}
+
+\subsection{doANOVA Analysis Output}
+If one way ANOVA is performed, a vector with ANOVA p values will be returned.
+The names of the vector are probeIDs. If two way ANOVA is performed, a matrix
+will be returned. The rows of the matrix are probeIDs and the columns are
+the levels of factors and interactions of the levels.
+
+The ANOVA results will be saved into file automatically.
+
+\subsection{doANOVA Function Demonstration}
+
+\subsubsection{Required Data}
+First let's see what the \Robject{eset} contains
+\begin{Schunk}
+\begin{Sinput}
+> eset
+\end{Sinput}
+\begin{Soutput}
+Expression Set (exprSet) with
+	33096 genes
+	12 samples
+		 phenoData object with 6 variables and 12 cases
+	 varLabels
+		sampleName: read from file
+		assayName: read from file
+		arrayName: read from file
+		pool: read from file
+		IVT: read from file
+		multIVT: read from file
+\end{Soutput}
+\end{Schunk}
+
+Let's check the experiment design and pick factors for testing
+\begin{Schunk}
+\begin{Sinput}
+> pData(eset)
+\end{Sinput}
+\begin{Soutput}
+   sampleName    assayName arrayName  pool  IVT multIVT
+1     EL_1A_1 HA004J2_1A_1   HA004J2 pool1 IVT1    IVT1
+2     EL_1A_2 HA004J7_1A_2   HA004J7 pool1 IVT1    IVT1
+3     EL_1A_3 HA004JB_1A_3   HA004JB pool1 IVT1    IVT1
+4     EL_1B_1 HA004JD_1B_1   HA004JD pool1 IVT2    IVT2
+5     EL_1B_2 HA004JI_1B_2   HA004JI pool1 IVT2    IVT2
+6     EL_1B_3 HA004JK_1B_3   HA004JK pool1 IVT2    IVT2
+7     EL_2A_1 HA004JN_2A_1   HA004JN pool2 IVT1    IVT3
+8     EL_2A_2 HA004JO_2A_2   HA004JO pool2 IVT1    IVT3
+9     EL_2A_3 HA004JP_2A_3   HA004JP pool2 IVT1    IVT3
+10    EL_2B_1 HA004JS_2B_1   HA004JS pool2 IVT2    IVT4
+11    EL_2B_2 HA004JT_2B_2   HA004JT pool2 IVT2    IVT4
+12    EL_2B_3 HA004JU_2B_3   HA004JU pool2 IVT2    IVT4
+\end{Soutput}
+\end{Schunk}
+
+\subsubsection{One Way ANOVA}
+Let's begin to perform the analysis. Here we take a subset of probes (the
+first 20 probes) to perform the ANOVA. We chose \Robject{multIVT}, since
+it has 4 levels: IVT1, IVT2, IVT3, IVT4.
+\begin{Schunk}
+\begin{Sinput}
+> aResult <- doANOVA(eset[1:20, ], "multIVT")
+\end{Sinput}
+\begin{Soutput}
+Performing one-way ANOVA for multIVT ...
+    Probes with S/N < 3 in at least 50% of samples in all subgroups of multIVT were not considered.
+[1] "One-way ANOVA results (9 probes) were written to file:
+     Result_multIVT/DataResult/ANOVA_oneway_multIVT.csv"
+\end{Soutput}
+\end{Schunk}
+
+The results of this ANOVA analysis were saved into a file called
+\Robject{ANOVA\_oneway\_multIVT.txt}.
+
+Since we chose to perform one way ANOVA, \Robject{aResult} should be
+a vector of length 20 (we only used 20 probes).
+\begin{Schunk}
+\begin{Sinput}
+> aResult
+\end{Sinput}
+\begin{Soutput}
+      100002       100037       100039       100058
+1.620190e-03 5.705200e-03 1.009991e-03 9.374965e-05
+      100060       100079       100089       100027
+1.016003e-01 5.021948e-06 1.462993e-04 1.652952e-01
+      100052
+5.952003e-01
+\end{Soutput}
+\end{Schunk}
+
+To save the results into file, we use R \Rfunction{write.table} function.
+It takes an object whos data need to be written to file. Here our object
+is \Robject{aResult}. A file argument (i.e., the name of the file). In
+the following command, \Rfunarg{sep = ``,''} tells it to save the file as
+comma delimit format. Argument \Rfunarg{row.names = TRUE} tells it to
+write probeID into file as well.
+\begin{Schunk}
+\begin{Sinput}
+> write.table(aResult, file = "multIVT_oneWay_ANOVA.csv",
++     sep = ",", row.names = TRUE)
+\end{Sinput}
+\end{Schunk}
+
+You can check the content of the file. The first column is probeID, the
+second column is p values from one way ANOVA analysis.
+
+
+\subsubsection{Two Way ANOVA}
+Let's perform two way ANOVA. Here we pass 2 factors ('pool' and 'IVT'),
+and as before we will use only 20 probes for demonstration purpose.
+\begin{Schunk}
+\begin{Sinput}
+> bResult <- doANOVA(eset[1:20, ], "pool", "IVT")
+\end{Sinput}
+\begin{Soutput}
+Performing two-way ANOVA for pool and IVT ...
+    Probes with S/N < 3 in at least 50% of samples in all subgroups of pool and IVT were not considered.
+[1] "Two-way ANOVA results (8 probes) were written to file: Result_pool_IVT/ANOVA_pool_IVT.csv"
+\end{Soutput}
+\end{Schunk}
+
+The results of the ANOVA analysis were saved into file
+\Robject{ANOVA\_pool\_IVT.txt}.
+
+Let's check if the \Robject{bResult} is a matrix
+\begin{Schunk}
+\begin{Sinput}
+> dim(bResult)
+\end{Sinput}
+\begin{Soutput}
+[1] 8 3
+\end{Soutput}
+\end{Schunk}
+
+Let's get the p values for the two way ANOVA
+\begin{Schunk}
+\begin{Sinput}
+> bResult
+\end{Sinput}
+\begin{Soutput}
+            p(pool)      p(IVT)  p(pool*IVT)
+100002 4.215936e-03 0.002562953 3.098940e-02
+100037 1.116917e-02 0.156183104 5.328180e-03
+100039 5.423037e-04 0.173732795 5.336480e-03
+100058 6.514385e-04 0.009500397 8.888504e-05
+100060 7.294050e-01 0.051155428 1.058891e-01
+100079 3.244984e-05 0.001540973 5.688470e-06
+100089 6.787365e-04 0.961322381 8.243031e-05
+100052 7.863245e-01 0.206235388 8.623153e-01
+\end{Soutput}
+\end{Schunk}
+
+To save the result to file, we can use the following command
+\begin{Schunk}
+\begin{Sinput}
+> write.table(bResult, file = "pool_IVT_twoway_ANOVA.csv",
++     sep = ",", row.names = TRUE, col.names = NA)
+\end{Sinput}
+\end{Schunk}
+
+%- End function doANOVA
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%- Function doLPE
+\section{LPE analysis}
+The function \Rfunction{doLPE} in package \Rpackage{ABarray} is based
+on \Rpackage{LPE} package from www.bioconductor.org.
+
+The \Rpackage{LPE} package describes local-pooled-error (LPE)
+test for identifying differentially expressed genes especially
+for low number of replicates (2-3) (See Jain:2003).
+
+The test statistics is calculated as follows, which calculates
+difference in medians between the two experimental conditions:
+
+\begin{huge}
+$\textit{Z} = \frac{Med_{1} - Med_{2}}{\sigma_{pooled}}$
+\end{huge}
+
+where the variance is estimated as follows:
+
+\begin{huge}
+$\sigma^{2}_{pooled} = \frac{\pi}{2}[\frac{\sigma^{2}_{1}(Med_{1})}{n1} + \frac{\sigma^{2}_{2}(Med_{2})}{n2}]$
+\end{huge}
+
+The function \Rfunction{doLPE} will automatically adjust p values using
+Benjamini-Hochberg FDR approach.
+
+Jain et. al. (2003) Local pooled error test for identifying differentially
+expressed genes with a small number of replicated microarrays. Bioinformatics,
+19, 1945-1951
+
+\subsection{Required Data Object}
+The function \Rfunction{doANOVA} works on  \Rclass{exprSet} object.
+
+\begin{itemize}
+\item \Robject{exprSet} object. The object can be generated from function
+\Rfunction{ABarray} in package \Rpackage{ABarray}. For additional information
+about functionality of \Rfunction{ABarray}, refer to document from
+\Rfunction{ABarray}. The object can also be generated from other packages
+in \Rpackage{Bioconductor} project. See www.bioconductor.org for more
+information about other packages.
+
+The S/N ratio information is stored in \Robject{se.exprs}
+slot. This will automatically be created from \Rfunction{ABarray} in \Rpackage{ABarray}
+package. The analysis will filter probes based on S/N >= 3 in 75\% of samples. If S/N
+is not available, all probes will be used for analysis (no filtering will be applied).
+
+\item \Rfunarg{group} parameter. The group is a factor that the test should be performed on.
+The name of the group should correspond to one of the names in experiment design file
+that define sample type. If there are 3 or more levels for the group, the members
+of the group should be specified for LPE test.
+
+\item \Rfunarg{member} parameter. Where there is more than 2 levels in the
+\Rfunarg{group} factor, any two members that need to be compared should be
+specified in this paramter. For example, \Rfunarg{member <- c('drug1', 'drug4')} will
+indicate to perform LPE between \Rfunarg{drug1} and \Rfunarg{drug4} only.
+
+\end{itemize}
+
+\subsection{doLPE Analysis Output}
+The function \Rfunction{doLPE} returns a dataframe with p values and FDR adjusted
+p values for each probes (if S/N available, filtered probes). It also produces
+two files for preset FDR = 0.01 and FDR = 0.05.
+
+\subsection{doLPE Function Demonstration}
+
+\subsubsection{Required Data}
+First let's see what the \Robject{eset} contains
+\begin{Schunk}
+\begin{Sinput}
+> eset
+\end{Sinput}
+\begin{Soutput}
+Expression Set (exprSet) with
+	32878 genes
+	6 samples
+		 phenoData object with 3 variables and 6 cases
+	 varLabels
+		sampleName: read from file
+		assayName: read from file
+		tissue: read from file
+\end{Soutput}
+\end{Schunk}
+
+Let's check the experiment design and pick factors for testing
+\begin{Schunk}
+\begin{Sinput}
+> pData(eset)
+\end{Sinput}
+\begin{Soutput}
+  sampleName              assayName  tissue
+1         A1 HB003U2_9/2/05_1:55_PM TissueA
+2         A2 HB003U3_9/2/05_2:11_PM TissueA
+3         A3 HB003U8_9/2/05_2:26_PM TissueA
+4         B1 HB003TV_9/2/05_2:41_PM TissueB
+5         B2 HB003TW_9/2/05_2:55_PM TissueB
+6         B3 HB003TZ_9/2/05_3:10_PM TissueB
+\end{Soutput}
+\end{Schunk}
+
+\subsubsection{LPE analysis}
+Let's begin to perform the analysis.
+\begin{Schunk}
+\begin{Sinput}
+> aLPE.result <- doLPE(eset, "tissue")
+\end{Sinput}
+\begin{Soutput}
+Performing LPE analysis for tissue ...
+[1] "LPE results were written to file Result_tissue/DataResult/LPE_tissue_TissueB_TissueA.csv"
+\end{Soutput}
+\end{Schunk}
+
+Let's take a few entries in aLPE.result to see what the dataframe looks like.
+\begin{Schunk}
+\begin{Sinput}
+> aLPE.result[1:4, ]
+\end{Sinput}
+\begin{Soutput}
+         x.x.B1   x.x.B2   x.x.B3 median.1  std.dev.1   y.y.A1   y.y.A2   y.y.A3 median.2  std.dev.2 median.diff
+520680 21.78399 21.78399 21.78399 21.78399 0.07155299 21.78399 21.78399 21.78399 21.78399 0.11310696   0.0000000
+643139 21.62803 21.62801 21.62809 21.62803 0.07155299 21.62810 21.50560 21.43475 21.50560 0.11310696   0.1224310
+701229 21.50559 21.50557 21.50566 21.50559 0.07155299 21.43456 21.62804 21.62819 21.62804 0.11310696  -0.1224466
+128174 21.43441 21.43437 21.43454 21.43441 0.07155299 18.45148 18.63286 18.47317 18.47317 0.05467501   2.9612377
+       pooled.std.dev abs.z.stats p.adj.adjp.rawp p.adj.adjp.BH p.adj.index    z.real
+520680     0.09682188    0.000000       1.0000000     1.0000000       17602  0.000000
+643139     0.09682188    1.264497       0.2060517     0.2422529       18865  1.264497
+701229     0.09682188    1.264658       0.2059938     0.2421976        1972  1.264658
+128174     0.06514452   45.456439       0.0000000     0.0000000        8984 45.456439
+\end{Soutput}
+\end{Schunk}
+
+
+To selectively view the result
+\begin{Schunk}
+\begin{Sinput}
+> aLPE.result[1:5, c("median.1", "median.2", "median.diff", "p.adj.adjp.rawp", "p.adj.adjp.BH")]
+\end{Sinput}
+\begin{Soutput}
+       median.1 median.2 median.diff p.adj.adjp.rawp p.adj.adjp.BH
+520680 21.78399 21.78399   0.0000000       1.0000000     1.0000000
+643139 21.62803 21.50560   0.1224310       0.2060517     0.2422529
+701229 21.50559 21.62804  -0.1224466       0.2059938     0.2421976
+128174 21.43441 18.47317   2.9612377       0.0000000     0.0000000
+703444 21.34799 19.30107   2.0469234       0.0000000     0.0000000
+\end{Soutput}
+\end{Schunk}
+
+%- End function doLPE
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%- Function doVennDiagram
+\section{Creating Venn Diagram: doVennDiagram}
+Venn Diagrams are frequently used for examining similarities and differences
+in gene lists generated from different analysis. It is made up of
+two or more overlapping circles. The functionality of the \Rfunction{doVennDiagram}
+in \Rpackage{ABarray} relies on some functions provided in \Rpackage{limma}
+package.
+
+\subsection{Required Data}
+\Rfunction{doVennDiagram} accepts two or three vectors of gene lists. If two
+gene lists are provided, two way Venn diagram is produced. If three gene lists
+are provided, three way Venn diagram is produced.
+\begin{itemize}
+\item list1. The first vector of gene list.
+\item list2. The second vector of gene list.
+\item list3. Optional third vector of gene list.
+\item names. The names for use for each list in diagram.
+\end{itemize}
+
+\subsection{doVennDiagram Function Demonstration}
+We will demonstrate two-way and three-way Venn diagram by creating three
+gene lists. Note: the result of joined lists are automatically saved
+into file.
+\begin{itemize}
+\item list1 contains probe names from index 1 to 100
+\item list2 contains probe names from index 61 to 160
+\item list3 contains probe names from index 81 to 200
+\end{itemize}
+
+After these three gene lists are created, we perform \Rfunction{doVennDiagram}.
+
+\begin{Schunk}
+\begin{Sinput}
+> list1 <- geneNames(eset)[1:100]
+> list2 <- geneNames(eset)[61:160]
+> list3 <- geneNames(eset)[81:200]
+> length(list1)
+\end{Sinput}
+\begin{Soutput}
+[1] 100
+\end{Soutput}
+\begin{Sinput}
+> length(list2)
+\end{Sinput}
+\begin{Soutput}
+[1] 100
+\end{Soutput}
+\begin{Sinput}
+> length(list3)
+\end{Sinput}
+\begin{Soutput}
+[1] 120
+\end{Soutput}
+\end{Schunk}
+
+\subsubsection{Two Way Venn Diagram}
+There are 40 probes common between \Robject{list1} and \Robject{list2}.
+Let's create Venn diagram between \Robject{list1} and \Robject{list2}.
+
+\begin{Schunk}
+\begin{Sinput}
+> doVennDiagram(list1, list2)
+\end{Sinput}
+\begin{Soutput}
+[1] "List information is written to file Venn_list_1+2.csv"
+\end{Soutput}
+\end{Schunk}
+\includegraphics{Figure/venn-twoWay}
+
+
+\subsubsection{Three way Venn Diagram}
+There are 40 probes common between \Robject{list1} and \Robject{list2},
+and 20 probes between \Robject{list1} and \Robject{list3}, and 80 probes
+between \Robject{list2} and \Robject{list3}. Let's create Venn diagram
+between \Robject{list1} and \Robject{list2}.
+
+\begin{Schunk}
+\begin{Sinput}
+> doVennDiagram(list1, list2, list3)
+\end{Sinput}
+\begin{Soutput}
+[1] "List information is written to file Venn_list_1+2+3.csv"
+\end{Soutput}
+\end{Schunk}
+\includegraphics{Figure/venn-threeWay}
+
+%- End function doVennDiagram
 
 
 \end{document}

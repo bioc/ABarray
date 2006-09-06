@@ -13,7 +13,6 @@
 }
 
 
-\usepackage{Sweave}
 \usepackage{graphicx}
 \usepackage{fancyhdr}
 
