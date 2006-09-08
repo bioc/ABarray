@@ -313,16 +313,11 @@ To see the content of the working directory, type the following command
 The \Rpackage{ABarray} has to be loaded to perform the automated analysis.
 To load \Rpackage{ABarray}, type the following command after launching R.
 
-<<loadLib>>=
-library(ABarray)
-@ 
-
-%\begin{Schunk}
-%\begin{Sinput}
-%> library(ABarray)
-%\end{Sinput}
-%\end{Schunk}
-
+\begin{Schunk}
+\begin{Sinput}
+> library(ABarray)
+\end{Sinput}
+\end{Schunk}
 
 \subsection{Performing Automated Expression Analysis}
 The automated gene expression analysis requires only one command. The function

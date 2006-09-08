@@ -64,6 +64,7 @@ Welcome to Applied Biosystems AB1700
      This package performs analysis for AB1700
      gene expression data
 \end{Soutput}
+
 \begin{Sinput}
 > ABarrayGUI()
 \end{Sinput}
