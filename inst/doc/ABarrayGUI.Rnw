@@ -89,8 +89,6 @@ change to where the design file is located.
 \item{DataFile: } Press \textsf{Bowse File} to navigate and select the
 data file to be used.
 \item{Choose impute function: } There are 2 impute functions available.
-The KNN function requires bioconductor package \Rpackage{impute} to run.
-See online ABarray document for more details about the functions (?ABarray).
 \item{Use \textit{t} test: } If this is selected, \textit{t} test will be
 performed on the specified group (and ANOVA if more than 2 subgroups).
 \item{Specify t test group: } Which group should the \textit{t} test be 

@@ -44,7 +44,7 @@ doLPE(eset, group, member, name = "", snThresh = 3, detectSample = 0.5)
   Dataframe
 }
 \references{ Bioconductor LPE package }
-\author{ Yongming Sun }
+\author{ Y Andrew Sun }
 
 \examples{
 ##---- Some example usage ----

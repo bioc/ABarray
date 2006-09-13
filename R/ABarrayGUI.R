@@ -204,11 +204,14 @@ ABarrayGUI <- function() {
     value = 1, variable = imputeVar, command = getImputeFunc)
   tkpack(imputeAvgRbtn, side = "left", anchor = "w")
   tkpack(imputeAvgFrame, fill = "x", expand = TRUE)
-  knnFrame = tkframe(optionInsertFrame, padx = 10)
-  knnRbtn = tkradiobutton(knnFrame, text = "KNN imputation", font = normalFont,
-    value = 2, variable = imputeVar, command = getImputeFunc)
-  tkpack(knnRbtn, side = "left", anchor = "w")
-  tkpack(knnFrame, fill = "x", expand = TRUE)
+
+  ##- Knn imputation
+  ##knnFrame = tkframe(optionInsertFrame, padx = 10)
+  ##knnRbtn = tkradiobutton(knnFrame, text = "KNN imputation", font = normalFont,
+  ##  value = 2, variable = imputeVar, command = getImputeFunc)
+  ##tkpack(knnRbtn, side = "left", anchor = "w")
+  ##tkpack(knnFrame, fill = "x", expand = TRUE)
+
   #- No impute selection
   noImpFrame = tkframe(optionInsertFrame, padx = 10)
   noImpRbtn = tkradiobutton(noImpFrame, text = "No imputation", font = normalFont,

@@ -9,22 +9,26 @@ imputeFlag = function(raw, pd = NULL, group = "", impute = "avg") {
   flagCount <- apply(flagSet, 2, sum)
   imputeValue$flagCount = flagCount
   
-   #- knn impute
+  #- knn impute Removed, since R 2.4, as it will not pass R check or build
+  #- without a funcitonal impute package.
+  ##if(impute == "knn") {
+  ##  cat("\nPerform KNN imputation for probes with FLAG > 5000\n")
+  ##  flush.console()
+
+  ##  if( ! any(grep("impute", installed.packages()))) {
+  ##    source("http://www.bioconductor.org/getBioC.R")
+  ##    getBioC(pkgs = "impute")
+  ##  }
+
+  ##  library(impute)
+  ##  imputed <- impute.knn(raw)
+  ## imputeValue$imputedData = imputed$data
+  ##  imputeValue$rowImputed = NULL
+  ##}
   if(impute == "knn") {
-    cat("\nPerform KNN imputation for probes with FLAG > 5000\n")
-    flush.console()
-
-    if( ! any(grep("impute", installed.packages()))) {
-      source("http://www.bioconductor.org/getBioC.R")
-      getBioC(pkgs = "impute")
-    }
-
-    library(impute)
-    imputed <- impute.knn(raw)
-    imputeValue$imputedData = imputed$data
-    imputeValue$rowImputed = NULL
+    cat("\nknn imputation is NOT implemented, using default subgroup average imputation\n")
   }
-  else if(impute == "avg") {
+  ##else if(impute == "avg") {
     cat("Perform Average imputation for probes with FLAG > 5000\n")
     flush.console()
 
@@ -51,7 +55,7 @@ imputeFlag = function(raw, pd = NULL, group = "", impute = "avg") {
     }
     imputeValue$imputedData = raw
     imputeValue$rowImputed = rowImputed    
-  }
+  ##}
   #-write.table(raw, file = "ImputedValue.csv", sep = ",")
   return(imputeValue)
 }

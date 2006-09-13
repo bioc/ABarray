@@ -41,7 +41,7 @@ doPlotEset(eset, group, name = "", snThresh = 3, test = TRUE, ...)
   produced.
 }
 
-\author{ Yongming Sun }
+\author{ Y Andrew Sun }
 
 \examples{
 #-doPlotEset(eset, "sampleGroup")

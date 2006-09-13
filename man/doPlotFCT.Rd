@@ -53,7 +53,7 @@ detectSample = 0.5, snThresh = 3, ...)
 \value{
   None. But a number of plot and result files will be produced.
 }
-\author{ Yongming Sun }
+\author{ Y Andrew Sun }
 
 \examples{
 #- doPlotFCT(eset, "sampleGroup", c("liver", "muscle"))

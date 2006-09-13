@@ -12,7 +12,7 @@ hclusterPlot(expr, title, dist)
 \arguments{
   \item{expr}{ matrix of gene expression value }
   \item{title}{ the title for the plot }
-  \item{dist} { whether to use correlation or distance for clustering,
+  \item{dist}{ whether to use correlation or distance for clustering,
 	 default to use Euclidean distance. Use dist = "Correlation" to
 	 cluster with correlation coefficient }
 }
@@ -22,7 +22,7 @@ hclusterPlot(expr, title, dist)
 \value{
   None. heatmap will be generated.
 }
-\author{ Yongming Sun }
+\author{ Y Andrew Sun }
 
 \examples{
 %- hclusterPlot(exprMatrix, "Some title for plot")

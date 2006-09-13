@@ -21,7 +21,7 @@ ABarrayGUI()
   No return values.
 }
 
-\author{ Yongming Sun <sunya@appliedbiosystems.com> }
+\author{ Y Andrew Sun <sunya@appliedbiosystems.com> }
 
 \seealso{ ABarray, doPlotEset, doPlotFCT, doANOVA, matrixPlot, mvaPair2, doLPE,
   doVennDiagram, hclusterPlot }

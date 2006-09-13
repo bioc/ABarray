@@ -23,9 +23,9 @@ ABarray(dataFile, designFile, group, test = TRUE, impute = "avg", ...)
 	 sample type and additional phenotype information }
   \item{group}{ specify which group statistical test will be performed
 	 on. The samples will be ordered according the group }
-  \item{test} { specify whether to perform t test. By default, t test
+  \item{test}{ specify whether to perform t test. By default, t test
 	 will be performed using specified group information }
-  \item{impute} {Treat flagged value (above 5000) as missing value, and
+  \item{impute}{Treat flagged value (above 5000) as missing value, and
 	 impute the missing value }
   \item{...}{ Additional arguments. Use snThresh and/or detectSample to
 	 perform filtering. snThresh is the threshold of S/N value to be
@@ -61,13 +61,14 @@ ABarray(dataFile, designFile, group, test = TRUE, impute = "avg", ...)
   If test is TRUE (default), t test and ANOVA (if applicable) results
   will be produced. 
 
-  If impute is knn, the flagged values (flag > 5000) will be
-  treated as missing values, and the missing values will be imputed
-  using k-nearest neighbor average (using bioconductor package impute)
-  as described in Olga Troyanskaya, Michael Cantor, Gavin Sherlock,
-  Pat Brown, Trevor Hastie, Robert Tibshirani, David Botstein and Russ
-  B. Altman, Missing value estimation methods for DNA microarrays
-  BIOINFORMATICS Vol. 17 no. 6, 2001 Pages 520-525.
+  %- Not implemented
+  %- If impute is knn, the flagged values (flag > 5000) will be
+  %- treated as missing values, and the missing values will be imputed
+  %- using k-nearest neighbor average (using bioconductor package impute)
+  %- as described in Olga Troyanskaya, Michael Cantor, Gavin Sherlock,
+  %- Pat Brown, Trevor Hastie, Robert Tibshirani, David Botstein and Russ
+  %- B. Altman, Missing value estimation methods for DNA microarrays
+  %- BIOINFORMATICS Vol. 17 no. 6, 2001 Pages 520-525.
 
   If impute is avg (default), the signal values of the flagged probes
   will be imputed from average of the subgroup only if there are 2 or
@@ -94,7 +95,7 @@ ABarray(dataFile, designFile, group, test = TRUE, impute = "avg", ...)
   on the \code{exprSet} object with various R and Bioconductor packages.
 }
 
-\author{ Yongming Sun <sunya@appliedbiosystems.com> }
+\author{ Y Andrew Sun <sunya@appliedbiosystems.com> }
 
 \seealso{ doPlotEset, doPlotFCT, doANOVA, matrixPlot, mvaPair2, doLPE,
   doVennDiagram, hclusterPlot }

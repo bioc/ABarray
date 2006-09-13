@@ -42,9 +42,6 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", ...) {
   }
   
   require(Biobase)
-  if(tolower(impute) == "knn") {
-    require(impute)
-  }
    
   sep <- "\t"
   if(any(grep(".csv", designFile))) {

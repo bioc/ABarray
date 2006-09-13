@@ -18,7 +18,7 @@ concord(sn, snThresh = 3)
   a matrix with the concordance
 }
 
-\author{ Yongming Sun }
+\author{ Y Andrew Sun }
 
 \examples{
 #-concordance <- concord(sn)  ##- sn ratio matrix

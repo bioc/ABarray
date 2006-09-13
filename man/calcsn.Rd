@@ -21,7 +21,7 @@ calcsn(sn, snThresh, pdata, group, grpMember)
   data matrix
 }
 
-\author{ Yongming Sun }
+\author{ Y Andrew Sun }
 
 \examples{
 %-snSum <- calcsn(sn, 3, pdata, "sampleGroup", c("liver", "muscle"))

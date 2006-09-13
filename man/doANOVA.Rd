@@ -35,7 +35,7 @@ doANOVA(dataf, group1, group2, snThresh = 3, detectSample = 0.5)
   a vector if one way ANOVA; a matrix if two way ANOVA
 }
 
-\author{ Yongming Sun }
+\author{ Y Andrew Sun }
 
 \examples{
   #- one way ANOVA

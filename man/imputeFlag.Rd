@@ -12,9 +12,9 @@ imputeFlag(raw, pd = NULL, group = "", impute = "avg")
 \arguments{
   \item{raw}{ a matrix containing gene expression with missing values
 	 labeled as NA }
-  \item{pd} { phenoData object }
-  \item{group} { which group should average be performed }
-  \item{impute} { choice of impute method, either avg or knn }
+  \item{pd}{ phenoData object }
+  \item{group}{ which group should average be performed }
+  \item{impute}{ choice of impute method, only avg (average) is implemented }
 }
 \value{
   a list containing a matrix with the imputed values and rows that are
@@ -22,7 +22,7 @@ imputeFlag(raw, pd = NULL, group = "", impute = "avg")
   
 }
 
-\author{ Yongming Sun }
+\author{ Y Andrew Sun }
 
 \examples{
 #-imputed <- imputeFlag(raw, pd, group = "tissue", impute = "avg")  ##- sn ratio matrix
