@@ -3,7 +3,7 @@
 #- Main preprocessing functions for ab1700 data
 
 "ABarray" <-
-function(dataFile, designFile, group, test = TRUE, impute = "avg", ...) {
+function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = "quantile", ...) {
   if(missing(designFile)) {
     print("Did you forget to provide an experiment design file?")
     return()
@@ -25,6 +25,17 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", ...) {
   showHiddenPlot = FALSE   #- There are some hidden plots normally not needed
   showControlOnly = FALSE  #- Just plot controls no variability plots
   showControlSN = FALSE
+  normUse <- "quantile"
+  if (normMethod == "all") {
+    normMethod <- c(normUse, "mean", "median", "trimMean", "trimAMean")
+  } else {
+    ifelse(normMethod == "quantile", (normUse <- "quantile"),
+    ifelse(normMethod == "mean", (normUse <- "mean"),
+    ifelse(normMethod == "median",  (normUse <- "median"),
+    ifelse(normMethod == "trimMean", (normUse <- "trimMean"),
+    ifelse(normMethod == "trimAMean", (normUse <- "trimAMean"),
+    (normMethod <- c(normUse, "mean", "median", "trimMean", "trimAMean")))))))
+  }
    
    #- Process additional arguments for sweave and hidden variables, ...
   addParam = list(...)
@@ -370,8 +381,6 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", ...) {
 
   if(! showControlOnly) {
     doPlotEset(esetUse, group, name = "Raw", test = FALSE, rawData = TRUE, snThresh = snThresh)
-    normUse <- "quantile"     
-    normMethod = c(normUse, "mean", "median", "trimMean", "trimAMean")
     esetUse = NULL
     for(i in seq(along = normMethod)) {
       if(normMethod[i] == "trimAMean") {

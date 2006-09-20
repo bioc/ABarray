@@ -12,7 +12,7 @@
   either in graphcis or text files.
 }
 \usage{
-ABarray(dataFile, designFile, group, test = TRUE, impute = "avg", ...)
+ABarray(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = "quantile", ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -27,6 +27,12 @@ ABarray(dataFile, designFile, group, test = TRUE, impute = "avg", ...)
 	 will be performed using specified group information }
   \item{impute}{Treat flagged value (above 5000) as missing value, and
 	 impute the missing value }
+  \item{normMethod}{ The method of normalizaiton. The default is "quantile". The
+    following normMethods are supported: quantile, mean, median, trimMean,
+    and trimAMean. If the parameter value is one of the supported normMethods,
+    the analysis will be performed on the chosen method. If the parameter
+    value is "all", the analysis will be performed on quantile only, but
+    the normalization results will be produced for each of the normMethods. }
   \item{...}{ Additional arguments. Use snThresh and/or detectSample to
 	 perform filtering. snThresh is the threshold of S/N value to be
 	 considered that the probe is detected (default value = 3, if
