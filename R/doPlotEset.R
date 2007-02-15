@@ -14,10 +14,11 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
   kHeight <- 768
 
   snPresent <- TRUE
-  showHiddenPlot = FALSE
-  rawData = FALSE
+  showHiddenPlot <- FALSE
+  rawData <- FALSE
   scatter <- TRUE
-  detectSample = 0.5
+  maPlot <- TRUE
+  detectSample <- 0.5
   
      #- Process additional arguments for sweave and hidden variables, ...
   addParam = list(...)
@@ -30,6 +31,9 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
   if(is.element("scatter", names(addParam))) {
     scatter = addParam$scatter
   }
+  if(is.element("maPlot", names(addParam))) {
+    maPlot = addParam$maPlot
+  }
   if(is.element("detectSample", names(addParam))) {
     detectSample = addParam$detectSample
   }
@@ -38,12 +42,12 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
   arrayPairCount = (arrayCount * (arrayCount - 1)) / 2
   pixelPerArray = as.integer(300 / log2(arrayCount))
   
-  data <- exprs(eset)
-  sn <- se.exprs(eset)
+  sigData <- assayDataElement(eset, "exprs")
+  snDetect <- assayDataElement(eset, "snDetect")
   
-  #- If there is no S/N data, use all values. fill sn with 100 for each value
-  if(dim(se.exprs(eset))[1] < 2 || sum(is.na(se.exprs(eset[,1]))) > 1) {
-    sn <- array(100, dim(data))
+  #- If there is no S/N data, use all values. fill snDetect with 100 for each value
+  if(dim(snDetect)[1] < 2 || max(rowSums(is.na(snDetect))) > 20000) {
+    snDetect <- array(100, dim(sigData))
     snPresent <- FALSE
   }
   
@@ -56,24 +60,24 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
       print("No processing will be provided")
       return()
     }
-    members <- levels(pd[, colnames(pd) == group])	
+    members <- levels(pd[, group])	
     subgrpCount <- length(members)
     
     idx.memberCount <- 1
     for(i in 1:subgrpCount) {
-      memberCount <- length(which(pd[, colnames(pd) == group] == members[i]))
+      memberCount <- length(which(pd[, group] == members[i]))
       color.label <- c(color.label, rep(color[i], memberCount))
-      idx.mc <- which(pd[, colnames(pd) == group] == members[i])
+      idx.mc <- which(pd[, group] == members[i])
       idx.order <- c(idx.order, idx.mc)
     }
     pd <- pd[idx.order,]
     pData(eset) <- pd
-    data <- data[, idx.order]
-    sn <- sn[, idx.order]
+    sigData <- sigData[, idx.order]
+    snDetect <- snDetect[, idx.order]
   }
 
-  if(max(data, na.rm = T) > 2000) {
-    data <- log2(data)
+  if(max(sigData, na.rm = T) > 2000) {
+    sigData <- log2(sigData)
   }
 	
   #- Create a directory to put all the figures in
@@ -104,15 +108,15 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
   #bmp(filename = paste(fname, ".bmp", sep = ""), width = kWidth, height = kHeight)
   pdf(file = paste(pdfDir, fname, ".pdf", sep = ""), width = kWidth / 100, height = kHeight / 100)
   dev.control("enable")
-  chLength = max(nchar(colnames(data)) * 1.2, 5)
+  chLength = max(nchar(colnames(sigData)) * 1.2, 5)
   par(mar = c(chLength, 5, 4, 2))
-  boxplot(split(data, col(data)), names = colnames(data), col = color.label, las = 2,
+  boxplot(split(sigData, col(sigData)), names = colnames(sigData), col = color.label, las = 2,
           main = paste("Box plot", gsub("_", " ", prefix)))
-  savejpg(paste(jpgDir, fname, ".jpg", sep = ""), width = kWidth, height = kHeight)
+  savejpg(paste(jpgDir, fname, sep = ""), width = kWidth, height = kHeight)
   dev.off()
    
 	#- MA plot, only plot if not raw unprocessed data
-  if(! rawData) {
+  if(! rawData && maPlot) {
     if(arrayCount > 35 || arrayCount < 2) {
       print(paste(". Will not create MA plot for all samples: ", arrayPairCount, " pairs", sep = ""))
       flush.console()
@@ -126,14 +130,16 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
       fHeight = arrayCount * pixelPerArray
       if(fWidth < kWidth) {fWidth = kWidth}
       if(fHeight < kHeight) {fHeight = kHeight}
-      bmp(filename = paste(jpgDir, fname, ".bmp", sep = ""), width = fWidth, height = fHeight)
-      #dev.control("enable")
-      mvaPair2(data, sn, snThresh = snThresh, main = paste("MA plot", gsub("_", " ", prefix)))
+      ##-bmp(filename = paste(jpgDir, fname, ".bmp", sep = ""), width = fWidth, height = fHeight)
+      pdf(file=paste(pdfDir, fname, ".pdf", sep=""), width=fWidth/100, height=fHeight/100)
+      dev.control("enable")
+      mvaPair2(sigData, snDetect, snThresh = snThresh, main = paste("MA plot", gsub("_", " ", prefix)))
+      savejpg(paste(jpgDir, fname, sep=""), width=fWidth, height=fHeight)
       dev.off()
     }
 
 	#- MA plot for subgroup
-    if (subgrpCount > 1) {
+    if (subgrpCount > 1 && maPlot) {
       for(i in 1:subgrpCount) {
         idx <- which(pd[, colnames(pd) == group] == members[i])
         if(length(idx) > 1) {
@@ -148,7 +154,7 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
           pdf(file = paste(pdfDir, fname, ".pdf", sep = ""), width = fWidth /100, height = fHeight/100)
           dev.control("enable")
           #bmp(filename = paste(jpgDir, fname, ".bmp", sep = ""), width = fWidth, height = fHeight)
-          mvaPair2(data[, idx], sn[, idx], snThresh = snThresh, main = gsub("_", " ", title))
+          mvaPair2(sigData[, idx], snDetect[, idx], snThresh = snThresh, main = gsub("_", " ", title))
           savejpg(paste(jpgDir, fname, sep = ""), width = fWidth, height = fHeight)
           dev.off()
          
@@ -159,7 +165,7 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
           fWidth = kWidth * 0.8; fHeight = kHeight * 0.8
           pdf(file = paste(pdfDir, fname, ".pdf", sep = ""), width = fWidth/100, height = fHeight/100)
           dev.control("enable")
-          cvvPlot(data[, idx], paste(members[i], "_", prefix, sep = ""))
+          cvvPlot(sigData[, idx], paste(members[i], "_", prefix, sep = ""))
           savejpg(paste(jpgDir, fname, sep = ""), width = fWidth, height = fHeight)
           dev.off()
         }
@@ -182,7 +188,7 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
       #pdf(file = paste(pdfDir, fname, ".pdf", sep = ""), width = fWidth/100, height = fHeight/100)
       bmp(filename = paste(fname, ".bmp", sep = ""), width = fWidth, height = fHeight)
       #dev.control("enable")
-      pairs(data, lower.panel = panel.scatter, upper.panel= panel.cor,
+      pairs(sigData, lower.panel = panel.scatter, upper.panel= panel.cor,
           main = paste("Scatter plot", gsub("_", " ", prefix)))
       #savejpg(paste(jpgDir, fname, sep = ""), width = fWidth, height = fHeight)
       dev.off()
@@ -199,8 +205,8 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
     #pdf(file = paste(pdfDir, fname, ".pdf", sep = ""), width = fWidth/100, height = fHeight/100)
     bmp(filename = paste(jpgDir, fname, ".bmp", sep = ""), width = fWidth, height = fHeight)
     #dev.control("enable")
-    dataFilter <- data
-    dataFilter[sn < snThresh] <- NA
+    dataFilter <- sigData
+    dataFilter[snDetect < snThresh] <- NA
     pairs(dataFilter, lower.panel = panel.scatter, upper.panel= panel.cor, 
           main = paste("Scatter plot SN >=", snThresh, gsub("_", " ", prefix)))
     #savejpg(paste(jpgDir, fname, sep = ""), width = fWidth, height = fHeight)
@@ -211,7 +217,7 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
 	#- correlation matrix and plot
   print(paste("Creating correlation matrix and plot", prefix, " ..."))
   flush.console()
-  data.cor <- cor(data, use = "complete.obs")
+  data.cor <- cor(sigData, use = "complete.obs")
   fname <- paste("QC_Signal_Correlation_", prefix, sep = "")
   pdf(file = paste(pdfDir, fname, ".pdf", sep = ""), width = kWidth/100, height = kHeight/100)
   #bmp(file = paste(fname, ".bmp", sep = ""), width = 800, height = 600)
@@ -229,7 +235,7 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
     pdf(file = paste(pdfDir, fname, ".pdf", sep = ""), width = kWidth/100, height = kHeight/100)
     #bmp(filename = paste(fname, ".bmp", sep = ""), width = 800, height = 600)
     dev.control("enable")
-    matrixPlot(concord(sn, snThresh), title = paste("Detection Concordance (S/N >= ", snThresh, ")", sep = ""))
+    matrixPlot(concord(snDetect, snThresh), title = paste("Detection Concordance (S/N >= ", snThresh, ")", sep = ""))
     savejpg(paste(jpgDir, fname, sep = ""), width = kWidth, height = kHeight)
     dev.off()
   }

@@ -6,11 +6,11 @@
   Perform imputation for missing values.
 }
 \usage{
-imputeFlag(raw, pd = NULL, group = "", impute = "avg")
+imputeFlag(rawSig, pd = NULL, group = "", impute = "avg")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{raw}{ a matrix containing gene expression with missing values
+  \item{rawSig}{ a matrix containing gene expression with missing values
 	 labeled as NA }
   \item{pd}{ phenoData object }
   \item{group}{ which group should average be performed }

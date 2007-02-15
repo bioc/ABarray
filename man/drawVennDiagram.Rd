@@ -6,7 +6,7 @@
   Drawing actual Venn diagram
 }
 \usage{
-drawVennDiagram(object, names, mar = rep(1, 4), cex = 1.5, ...)
+drawVennDiagram(object, names, mar = rep(0.5, 4), cex = 1, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

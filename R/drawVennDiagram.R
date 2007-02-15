@@ -4,7 +4,7 @@
 #- from related Venn diagram functions in limma package
 
 "drawVennDiagram" <-
-  function (object, names, mar = rep(1, 4), cex = 1.5,  ...) 
+  function (object, names, mar = rep(0.5, 4), cex = 1, ...) 
 {
   colors <- c("blue", "cyan", "orange")
   if (!is(object, "VennCounts")) 
@@ -20,7 +20,7 @@
   xcentres <- list(0, c(-1, 1), c(-1, 1, 0))[[nsets]]
   #ycentres <- list(0, c(0, 0), c(1/sqrt(3), 1/sqrt(3), -2/sqrt(3)))[[nsets]]
   ycentres <- list(0, c(0, 0), c(1/sqrt(5), 1/sqrt(5), -2/sqrt(5)))[[nsets]]
-  r <- c(1.5, 1.5, 1.5)[nsets]
+  r <- c(1.6, 1.6, 1.6)[nsets]
   xtext <- list(-1.2, c(-1.2, 1.2), c(-1.2, 1.2, 0))[[nsets]]
   ytext <- list(1.8, c(1.8, 1.8), c(2.4, 2.4, -3))[[nsets]]
   old.par <- par(mar = mar)

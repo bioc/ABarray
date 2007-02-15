@@ -7,11 +7,11 @@
   performed. If two factors are provided, two way ANOVA is performed.
 }
 \usage{
-doANOVA(dataf, group1, group2, snThresh = 3, detectSample = 0.5)
+doANOVA(eset, group1, group2, snThresh = 3, detectSample = 0.5)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{dataf}{ Either an \code{exprSet} object or an expression matrix }
+  \item{eset}{ An \code{ExpressionSet} object }
   \item{group1}{ factor name or labels to test on. If dataf is an
 	 exprSet object, either name or labels can be used. If dataf is an
 	 expression matrix, lables should be used. }
@@ -40,10 +40,9 @@ doANOVA(dataf, group1, group2, snThresh = 3, detectSample = 0.5)
 \examples{
   #- one way ANOVA
 #-  anova <- doANOVA(eset, "sampleGroup")
-#-  anova <- doANOVA(exprMatrix, c(1,1,1,1,2,2,2,2))
+
   #- two way ANOVA
 #-  anova <- doANOVA(eset, "sampleGroup1", "sampleGoup2")   
-#-  anova <- doANOVA(exprMatrix, c(1,1,1,1,2,2,2,2), c(3,3,4,4,3,3,4,4))
 }
 \keyword{ htest }% at least one, from doc/KEYWORDS
 

@@ -69,7 +69,8 @@ function(eset, group, grpMember, order1=NULL,order2=NULL, detectSample = 0.5, sn
 
   #- Check to see if there is S/N ratio values
   snPresent <- TRUE
-  sn <- se.exprs(eset)
+  ##-sn <- se.exprs(eset)
+  sn <- assayDataElement(eset, "snDetect")
   if(dim(sn)[2] <= 1 || sum(is.na(sn[,])) > 1) {
     snPresent <- FALSE
   }
@@ -120,7 +121,7 @@ function(eset, group, grpMember, order1=NULL,order2=NULL, detectSample = 0.5, sn
           rowSd = union(rowSd1, rowSd2)
           if(length(rowSd) > 0) {
             cat(length(rowSd), "probes had sdev = 0, they were removed in the t test\n")
-            print(geneNames(esetUse)[rowSd])
+            print(featureNames(esetUse)[rowSd])
             esetUse = esetUse[-rowSd,]
             idxProbe = idxProbe[-rowSd]
             probeCount = length(idxProbe)        
@@ -177,7 +178,7 @@ function(eset, group, grpMember, order1=NULL,order2=NULL, detectSample = 0.5, sn
             fcBinInfo[idxBin] <- names(fcBin)[bin]
           }
 
-          output <- cbind("ProbeID" = geneNames(esetUse),  "FC" = 2 ^ fcRes, "Log2(FC)" = fcRes,
+          output <- cbind("ProbeID" = featureNames(esetUse),  "FC" = 2 ^ fcRes, "Log2(FC)" = fcRes,
                           "p value" = adjpFDR[,1], "FDR (BH)" = adjpFDR[,2], "FC Bin" = fcBinInfo)
           colnames(output) = c("ProbeID", paste("FC (", member[1], "/", member[2], ")", sep = ""),
                     "Log2(FC)", "p value", "FDR (BH)", "FC Bin")

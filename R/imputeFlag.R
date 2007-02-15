@@ -1,11 +1,11 @@
 #- $Id: imputeFlag.R,v 1.1.1.1 2006/06/06 22:06:37 sunya Exp $
 
-imputeFlag = function(raw, pd = NULL, group = "", impute = "avg") {
-  flagCount <- rep(0, dim(raw)[2])
+imputeFlag = function(rawSig, pd = NULL, group = "", impute = "avg") {
+  flagCount <- rep(0, dim(rawSig)[2])
   imputeValue = list(flagCount = flagCount)
 
   rowImputed <- c()
-  flagSet <- is.na(raw)    #- which flag
+  flagSet <- is.na(rawSig)    #- which flag
   flagCount <- apply(flagSet, 2, sum)
   imputeValue$flagCount = flagCount
   
@@ -21,7 +21,7 @@ imputeFlag = function(raw, pd = NULL, group = "", impute = "avg") {
   ##  }
 
   ##  library(impute)
-  ##  imputed <- impute.knn(raw)
+  ##  imputed <- impute.knn(rawSig)
   ## imputeValue$imputedData = imputed$data
   ##  imputeValue$rowImputed = NULL
   ##}
@@ -33,19 +33,18 @@ imputeFlag = function(raw, pd = NULL, group = "", impute = "avg") {
     flush.console()
 
      #- Average impute
-    pdMatrix = pData(pd)
-    grpMember = levels(pdMatrix[, colnames(pdMatrix) == group])
-    for(i in 1:dim(raw)[1]) {
+    grpMember = levels(pd[, group])
+    for(i in 1:dim(rawSig)[1]) {
       if(sum(flagSet[i,]) > 0) {
         for(j in 1:length(grpMember)) {
-          memberHere <- which(pdMatrix[, group] == grpMember[j])
+          memberHere <- which(pd[, group] == grpMember[j])
           if(sum(flagSet[i, memberHere], na.rm = T) > 0) {
             flagged <- which(flagSet[i, memberHere])
             if(length(memberHere) - length(flagged) > 1) {
-                                        #avg <- mean(raw[i, memberHere][-flagged])
-              avg <- mean(raw[i, memberHere[-flagged]], na.rm = T)
+                                        #avg <- mean(rawSig[i, memberHere][-flagged])
+              avg <- mean(rawSig[i, memberHere[-flagged]], na.rm = T)
               if(! is.na(avg)) {
-                raw[i, memberHere[flagged]] <- avg
+                rawSig[i, memberHere[flagged]] <- avg
                 rowImputed <- c(rowImputed, i)
               }
             }
@@ -53,10 +52,10 @@ imputeFlag = function(raw, pd = NULL, group = "", impute = "avg") {
         }
       }
     }
-    imputeValue$imputedData = raw
+    imputeValue$imputedData = rawSig
     imputeValue$rowImputed = rowImputed    
   ##}
-  #-write.table(raw, file = "ImputedValue.csv", sep = ",")
+  #-write.table(rawSig, file = "ImputedValue.csv", sep = ",")
   return(imputeValue)
 }
 

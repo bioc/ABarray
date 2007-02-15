@@ -1,12 +1,12 @@
 Package: ABarray
 Title: Microarray QA and statistical data analysis for Applied Biosystems
   Genome Survey Micorarray (AB1700) gene expression data.
-Version: 1.3.0
-Date: 2006-09-20
+Version: 1.3.1
+Date: 2006-02-11
 Author: Yongming Andrew Sun 
 Maintainer: Yongming Andrew Sun <sunya@appliedbiosystems.com>
 Depends: Biobase, multtest
-Suggests: limma
+Suggests: limma, LPE
 Description: Automated pipline to perform gene expression analysis for Applied
   Biosystems Genome Survey Microarray (AB1700) data format. Functions include
   data preprocessing, filtering, control probe analysis, statistical analysis in

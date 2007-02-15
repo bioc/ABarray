@@ -1,8 +1,13 @@
 #- $Id: doANOVA.R,v 1.1.1.1 2006/06/06 22:06:37 sunya Exp $
 
 #- Perform anova analysis for a given group
-doANOVA <- function(dataf, group1, group2, snThresh = 3, detectSample = 0.5) {
+doANOVA <- function(eset, group1, group2, snThresh = 3, detectSample = 0.5) {
   anovaFun <- c()
+  if(! is(eset, "ExpressionSet")) {
+    print("ExpressionSet object must be provided")
+    return()
+  }
+  dataf <- exprs(eset)
   if(missing(group2)) {
     cat("\nPerforming one-way ANOVA for", group1, "...\n")
     flush.console()
@@ -15,39 +20,29 @@ doANOVA <- function(dataf, group1, group2, snThresh = 3, detectSample = 0.5) {
       dir.create(dataDir, showWarnings = FALSE)
     }
     fname <- paste(dataDir, "ST_ANOVA_oneway_", group1, ".csv", sep = "")
-    if(is(dataf, "exprSet")) {
-		if(is.character(group1) & length(group1) < 2) {
-        factor1 <- as.factor(as.vector(pData(dataf)[, group1]))
-		}
-      snPresent = TRUE
-      if(dim(se.exprs(dataf))[1] < 2 || sum(is.na(se.exprs(dataf[,1]))) > 1) {
-        sn <- array(100, dim(data))
-        snPresent <- FALSE
-      }
-      if(snPresent) {
-        snT = snSummary(dataf, snThresh, group1)
-        rowUse = which(snT[, 1] >= detectSample)
-        for(i in 2:length(levels(factor1))) {
-          rowUse = union(rowUse, which(snT[, i] >= detectSample))
-        }
-        dataf = exprs(dataf[rowUse,])
-        cat("    Probes with S/N < ", snThresh, " in at least ", (100 - detectSample * 100),
-            "% of samples in all subgroups of ", group1, " were not considered.\n", sep = "")
-        flush.console()
-      }
-      else {
-        dataf <- exprs(dataf)
-      }
+
+    factor1 <- as.factor(pData(eset)[, group1])
+
+    snPresent = TRUE
+    if(dim(assayDataElement(eset, "snDetect"))[1] < 2 || 
+            sum(is.na(assayDataElement(eset, "snDetect")[,1])) > 1) {
+      sn <- array(100, dim(data))
+      snPresent <- FALSE
     }
-    else {
-      factor1 <- as.factor(group1) 
+    if(snPresent) {
+      snT = snSummary(eset, snThresh, group1)
+      rowUse = which(snT[, 1] >= detectSample)
+      for(i in 2:length(levels(factor1))) {
+        rowUse = union(rowUse, which(snT[, i] >= detectSample))
+      }
+      dataf = exprs(eset[rowUse,])
+      cat("    Probes with S/N < ", snThresh, " in at least ", (100 - detectSample * 100),
+          "% of samples in all subgroups of ", group1, " were not considered.\n", sep = "")
+      flush.console()
     }
     
     anovaFun <- function(i) {
-		return(summary( 
-                     aov(dataf[i,] ~ factor1) 
-                     ) 
-             [[1]][4:5][[2]][1]) 
+      return(summary(aov(dataf[i,] ~ factor1))[[1]][4:5][[2]][1]) 
     }
     anova <- sapply(1:length(dataf[,1]), anovaFun)
     names(anova) <- rownames(dataf)
@@ -59,73 +54,57 @@ doANOVA <- function(dataf, group1, group2, snThresh = 3, detectSample = 0.5) {
     invisible(anova)
   }
   else {
-    factor1 <- group1
-    factor2 <- group2
     cat("Performing two-way ANOVA for", group1, "and", group2, "...\n")
     flush.console()
     resultDir = paste("Result_", gsub(" ", "", group1), "_", gsub(" ", "", group2), "/", sep = "")
     if(! file.exists(resultDir)) {
       dir.create(resultDir, showWarnings = FALSE)
     }
-
-    if(is(dataf, "exprSet")) {
-		if(is.character(group1) & length(group1) < 2) {
-        group1 <- pData(dataf)[, group1]
-		}
-      if(is.character(group2) & length(group2) < 2) {
-        group2 <- pData(dataf)[, group2]
-      }
-      snPresent = TRUE
-      if(dim(se.exprs(dataf))[1] < 2 || sum(is.na(se.exprs(dataf[,1]))) > 1) {
+    factor1 <- as.factor(pData(eset)[, group1])
+    factor2 <- as.factor(pData(eset)[, group2])
+    if(is(eset, "ExpressionSet")) {
+      snPresent <- TRUE
+      if(dim(assayDataElement(eset, "snDetect"))[1] < 2 || 
+            sum(is.na(assayDataElement(eset, "snDetect")[,1])) > 1) {
+        sn <- array(100, dim(data))
         snPresent <- FALSE
       }
       if(snPresent) {
-        snT = snSummary(dataf, snThresh, factor1)
-        rowUse = which(snT[, 1] >= detectSample)
-        for(i in 2:length(levels(as.factor(group1)))) {
-          rowUse = union(rowUse, which(snT[, i] >= detectSample))
+        snT <- snSummary(eset, snThresh, group1)
+        rowUse <- which(snT[, 1] >= detectSample)
+        for(i in 2:length(levels(factor1))) {
+          rowUse <- union(rowUse, which(snT[, i] >= detectSample))
         }
-        snT = snSummary(dataf, snThresh, factor2)
-        for(i in 1:length(levels(as.factor(group2)))) {
-          rowUse = union(rowUse, which(snT[, i] >= detectSample))
+        snT <- snSummary(eset, snThresh, group2)
+        for(i in 1:length(levels(factor2))) {
+          rowUse <- union(rowUse, which(snT[, i] >= detectSample))
         }
-        dataf = exprs(dataf[rowUse,])
+        dataf <- exprs(eset[rowUse,])
         cat("    Probes with S/N < ", snThresh, " in at least ", (100 - detectSample * 100),
-            "% of samples in all subgroups of ", factor1, " and ", factor2,
+            "% of samples in all subgroups of ", group1, " and ", group2,
             " were not considered.\n", sep = "")
+        print(paste("   Number of probes considered:", length(rowUse)))
         flush.console()
       }
-      else {
-        dataf <- exprs(dataf)
-      }
     }
-    else {
-      factor1 <- "factor1"
-      factor2 <- "factor2"
-    }
-    group1 <- as.factor(group1)
-    group2 <- as.factor(group2)
         
     anovaFun <- function(i) {
-		return(summary( 
-                     aov(dataf[i,] ~ group1 * group2) 
-                     )
-             [[1]][5][[1]][1:3]) 
+		  return(summary(aov(dataf[i,] ~ factor1 * factor2))[[1]][5][[1]][1:3]) 
     }
 
-    anova <- t(sapply(1:length(dataf[,1]), anovaFun))
+    anv <- t(sapply(1:length(dataf[,1]), anovaFun))
                                         #names(anova) <- rownames(dataf)
-    rownames(anova) <- rownames(dataf)
-    colnames(anova) <- c(paste("p(", factor1, ")", sep = ""),
-                         paste("p(", factor2, ")", sep = ""),
-                         paste("p(", factor1, "*", factor2, ")", sep = ""))
+    rownames(anv) <- rownames(dataf)
+    colnames(anv) <- c(paste("p(", group1, ")", sep = ""),
+                         paste("p(", group2, ")", sep = ""),
+                         paste("p(", group1, "*", group2, ")", sep = ""))
 
-    fname <- paste(resultDir, paste("ST_ANOVA", factor1, factor2, sep = "_"), ".csv", sep = "")
-    write.table(cbind(ProbeID = rownames(dataf), anova), file = fname, sep = ",",
+    fname <- paste(resultDir, paste("ST_ANOVA", group1, group2, sep = "_"), ".csv", sep = "")
+    write.table(cbind(ProbeID = rownames(dataf), anv), file = fname, sep = ",",
                 row.names = F, col.names = T)
-    print(paste("Two-way ANOVA results (", length(rownames(anova)), " probes) ",
+    print(paste("Two-way ANOVA results (", length(rownames(anv)), " probes) ",
                 "were written to file: ", fname, sep = ""))
-    invisible(anova)
+    invisible(anv)
   }
 }
 

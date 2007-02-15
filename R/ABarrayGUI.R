@@ -1,11 +1,8 @@
 #- $Id: ABarrayGUI.R,v 1.1.1.1 2006/06/06 22:06:37 sunya Exp $
 
 #- Open up a GUI interface to take the parameters and pass to ABarray function.
-
 ABarrayGUI <- function() {
-
   require(tcltk)
-
   options(show.error.messages = TRUE)
   
   tt <- tktoplevel()
@@ -19,7 +16,7 @@ ABarrayGUI <- function() {
   group = ""
   snThresh = ""
   detectSample = ""
-  groupVar = tclVar("which group?")
+  groupNames <- c("Which Group")
   groupSpecVar = tclVar(1)
   ttest = FALSE
   ttestVar = tclVar(1)
@@ -30,6 +27,9 @@ ABarrayGUI <- function() {
 
   titleFont = "Helvetica 14"
   normalFont = "Helvetica 10"
+
+  #########################################################################
+  #######################################################################
 
   postMsg <- function(msg) {
     tkconfigure(messageText, state = "normal")
@@ -59,11 +59,17 @@ ABarrayGUI <- function() {
       postMsg("Your designFile does not contain grouping column.\n")
     }
     else {
-      tclvalue(groupVar) = designColname[-colExclude][1]
+      groupNames <- designColname[-colExclude]
       postMsg("Please make sure t test group is the one you intended.\n")
+      tkdelete(groupBox, 0)
+      for(i in 1:length(groupNames)) {
+        tkinsert(groupBox, "end", groupNames[i])
+      }
+      tkselection.set(groupBox, 0) 
     }
     setwd(dirname(designFile))
   }
+  
   findDataFile <- function() {
     tclvalue(dataFileVar) = tclvalue(tkgetOpenFile())
     dataFile <- tclvalue(dataFileVar)
@@ -83,10 +89,11 @@ ABarrayGUI <- function() {
   }
   
   getGroupFunc <- function() {
-    group = tclvalue(groupVar)
-    if(tclvalue(groupVar) == 1) {
-      tkconfigure(groupEntry, state = "normal")
-    }
+    ##-group = tclvalue(groupVar)
+    ##-if(tclvalue(groupVar) == 1) {
+    ##-  tkconfigure(groupEntry, state = "normal")
+    ##-}
+    group <- get(groupNames)[as.numeric(tkcurselection(groupBox))+1]
   }
 
   getSNfunc <- function() {
@@ -102,9 +109,17 @@ ABarrayGUI <- function() {
 
     designFile <- tclvalue(designFileVar)
     dataFile <- tclvalue(dataFileVar)
-    if(tclvalue(groupSpecVar) == 1) {
-      group = tclvalue(groupVar)
-    }
+    ##-if(tclvalue(groupSpecVar) == 1) {
+    ##-  group = tclvalue(groupVar)
+    ##-}
+    ##-size <- as.numeric(tksize(groupBox))
+    ##-groupNames <- c()
+    ##-for(i in 1:size) {
+    ##- groupNames[i] <- tclvalue(tkget(groupBox, (i - 1)))
+    ##-}
+    ##group <- groupNames[as.numeric(tkcurselection(groupBox))+1]
+    group <- tclvalue(tkget(groupBox, as.numeric(tkcurselection(groupBox))))
+    
     if(tclvalue(ttestVar) == 1) {
       ttest = TRUE
     }
@@ -121,6 +136,7 @@ ABarrayGUI <- function() {
     snThresh = as.numeric(tclvalue(snVar))
     detectSample = as.numeric(tclvalue(detectSampleVar))
 
+    ##-postMsg(paste("GroupName:", groupNames, "\n"))
     postMsg(paste("Group:", group, "\n"))
     postMsg(paste("DesignFile:", designFile, "\n"))
     postMsg(paste("DataFile:", dataFile, "\n"))
@@ -221,12 +237,20 @@ ABarrayGUI <- function() {
 
   #- Which group to use for comparison
   groupFrame = tkframe(optionInsertFrame)
-  groupCbtn = tkradiobutton(groupFrame, text = "Specify array grouping:", font = normalFont,
-    variable = groupSpecVar, value = 1, command = getGroupFunc)
-  groupEntry = tkentry(groupFrame, textvariable = groupVar, font = normalFont,
-    width = 20, state = "normal", justify = "center")
-  tkpack(groupCbtn, side = "left", anchor = "w")
-  tkpack(groupEntry, side = "left")
+  groupBox <- tklistbox(groupFrame, height=4, selectmode="single", background="white")
+  tkpack(tklabel(groupFrame, text="Which group for analysis"), anchor="w")
+  for(i in 1:length(groupNames)) {
+    tkinsert(groupBox, "end", groupNames[i])
+  }
+  tkselection.set(groupBox, 1)
+  
+  ##-groupCbtn = tkradiobutton(groupFrame, text = "Specify array grouping:", font = normalFont,
+  ##-  variable = groupSpecVar, value = 1, command = getGroupFunc)
+  ##-groupEntry = tkentry(groupFrame, textvariable = groupVar, font = normalFont,
+  ##-  width = 20, state = "normal", justify = "center")
+  ##-tkpack(groupCbtn, side = "left", anchor = "w")
+  ##-tkpack(groupEntry, side = "left")
+  tkpack(groupBox, expand=TRUE)
   tkpack(groupFrame, fill = "x", expand = TRUE)
 
     #- whether to use t test

@@ -21,10 +21,12 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
 
   kWidth <- 800  #- default figure size
   kHeight <- 600
-  snThresh = 3   #- Default S/N filtering threshold
-  showHiddenPlot = FALSE   #- There are some hidden plots normally not needed
-  showControlOnly = FALSE  #- Just plot controls no variability plots
-  showControlSN = FALSE
+  snThresh <- 3   #- Default S/N filtering threshold
+  showHiddenPlot <- FALSE   #- There are some hidden plots normally not needed
+  showControlOnly <- FALSE  #- Just plot controls no variability plots
+  showControlSN <- FALSE
+  esetOnly <- FALSE
+  
   normUse <- "quantile"
   if (normMethod == "all") {
     normMethod <- c(normUse, "mean", "median", "trimMean", "trimAMean")
@@ -38,37 +40,45 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
   }
    
    #- Process additional arguments for sweave and hidden variables, ...
-  addParam = list(...)
+  addParam <- list(...)
   if(is.element("showHiddenPlot", names(addParam))) {
-    showHiddenPlot = addParam$showHiddenPlot
+    showHiddenPlot <- addParam$showHiddenPlot
   }
   if(is.element("showControlOnly", names(addParam))) {
-    showControlOnly = addParam$showControlOnly
+    showControlOnly <- addParam$showControlOnly
   }
   if(is.element("snThresh", names(addParam))) {
-    snThresh = addParam$snThresh
+    snThresh <- addParam$snThresh
   }
   if(is.element("showControlSN", names(addParam))) {
-    showControlSN = addParam$showControlSN
+    showControlSN <- addParam$showControlSN
+  }
+  if(is.element("esetOnly", names(addParam))) {
+    esetOnly <- addParam$esetOnly
   }
   
   require(Biobase)
    
+  ##- Find out what is the field sepeartor, tab or comma
   sep <- "\t"
   if(any(grep(".csv", designFile))) {
     sep <- ","
   }
-  pd <- read.phenoData(designFile, sep = sep, colClasses = "factor", header = TRUE)
-  sampleCount <- dim(pData(pd))[1]
+  ##-pd <- read.phenoData(designFile, sep = sep, colClasses = "factor", header = TRUE)
+  pd <- read.table(designFile, sep=sep, colClasses="factor", header=TRUE)
+  sampleCount <- dim(pd)[1]
   
   sep <- "\t"
   if(any(grep(".csv", dataFile))) {
     sep <- ","
   }
+  ##- Preprocess data before reading the entire data set
   data <- read.table(dataFile, sep = sep, nrows = 5)
   dataColNames <- t(data[1,])
   dataColCount <- dim(data)[2]
-
+  colClass <- rep("numeric", dataColCount)  ##- for reading data file
+  colClass[1:2] <- "character"
+  
   colProbe <- grep("probe", dataColNames, ignore.case = TRUE)
   colGene <- grep("gene", dataColNames, ignore.case = TRUE)
   colName <- grep("name", dataColNames, ignore.case = TRUE)
@@ -105,12 +115,11 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
       colGeneID <- intersect(colGene, colID)
     }
   }      
-
+  ##- Find out which columns contain signals, which contains S/N and flags
   dataColNames <- gsub("assay_normalized_signal", "assay_norm_sig", dataColNames,
                        ignore.case = TRUE)
   dataColNames <- gsub("Assay Normalized Signal", "assay_norm_sig", dataColNames,
                        ignore.case = TRUE)
-
   dataColNames <- gsub("Assay.Normalized.Signal", "assay_norm_sig", dataColNames,
                        ignore.case = TRUE)
 
@@ -141,23 +150,23 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
   col.cv <- grep("CV", dataColNames, ignore.case = TRUE)
 
 	#- Figure out what is the sample,assay, arrayname
-  idx.arrayName <- grep("arrayName", colnames(pData(pd)), ignore.case = TRUE)
-  idx.assayName <- grep("assayName", colnames(pData(pd)), ignore.case = TRUE)
-  idx.sampleName <- grep("sampleName", colnames(pData(pd)), ignore.case = TRUE)
+  idx.arrayName <- grep("arrayName", colnames(pd), ignore.case = TRUE)
+  idx.assayName <- grep("assayName", colnames(pd), ignore.case = TRUE)
+  idx.sampleName <- grep("sampleName", colnames(pd), ignore.case = TRUE)
 
    #- What ID to use, sampleName, or arrayName or assayName
   idUse <- c()
   idType <- "sampleName"
   if(any(idx.arrayName)) {
-    idUse <- as.vector(pData(pd)[,idx.arrayName])
+    idUse <- as.vector(pd[,idx.arrayName])
     idType <- "arrayName"
   }
   else if(any(idx.assayName)) {
-    idUse <- as.vector(pData(pd)[,idx.assayName])
+    idUse <- as.vector(pd[,idx.assayName])
     idType <- "assayName"
   }
   else {
-    idUse <- as.vector(pData(pd)[,idx.sampleName])
+    idUse <- as.vector(pd[,idx.sampleName])
   }
 
   cat("Using", idType, "to match experiment with signal in file:", dataFile, "\n")
@@ -167,16 +176,16 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
   color.label <- c()
    
   ordSampleMember <- c()
-  pd.matrix <- pData(pd)
-  grpMember <- levels(pd.matrix[, colnames(pd.matrix) == group])
+  ##-pd.matrix <- pData(pd)
+  grpMember <- levels(pd[, group])
   for(i in 1:length(grpMember)) {
-    idx.member <- which(pd.matrix[, colnames(pd.matrix) == group] == grpMember[i])
+    idx.member <- which(pd[, group] == grpMember[i])
     ordSampleMember <- c(ordSampleMember, idx.member)
     color.label <- c(color.label, rep(color[i], length(idx.member)))
   }
-  pData(pd) <- pData(pd)[ordSampleMember,]
-  sampleName <- as.vector(pData(pd)[,1])
-  rownames(pData(pd)) <- sampleName
+  pd <- pd[ordSampleMember,]
+  sampleName <- as.vector(pd[,1])
+  rownames(pd) <- sampleName
   
   cat("The sample names are:\n")
   print(sampleName)
@@ -250,62 +259,30 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
    #- Let's read the data.
   cat("Reading data from", dataFile, "......\n    This may take several minutes....\n")
   flush.console()
-  data <- read.table(dataFile, sep = sep, header = T, as.is = T)
-  cat("Checking data format:")
-  flush.console()
-                                        #- Remove comma (,) from numbers
-  options(warn = -1)
-  data[, c(colSignal, colSN, colFlag)] = apply(data[, c(colSignal, colSN, colFlag)], 2, function(x) {
-    cat(":"); flush.console()
-    as.numeric(gsub(",", "", x))})
-  options(warn = 0)
-  
-  cat("||\n\n")
-  flush.console()
-                                           #- Process controls
-  controlType <- c("Buffer_Blank", "CL_ControlLadder", "CLFL_GridLandmark", "FL_ControlLadder", "FL_Fiducial_Cp",
-                   "Hybridization_Control", "ICP_FLOnly_Control", "IVT_Kit_Control", "Manufacturing_Test_Control",
-                   "Negative_Control", "Positive_Control", "RT_Kit_Control", "Blank")
-  
-  controlName <- c("Buffer_Blank", "CL_Ladder", "CLFL_Grid", "FL_Ladder", "FL_Fiducial",
-                   "Hybridization", "ICP_FLOnly", "IVT_Kit", "Manufacturing",
-                   "Negative", "Positive", "RT_Kit", "Blank")
-  controlPlot = c(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, showHiddenPlot, TRUE, TRUE, TRUE, FALSE)
-  names(controlType) <- controlName
-  rowControl = c()
-  if(colGeneID != 0) {
-    geneID = as.vector(data[, colGeneID])
-    rowControl <- grep("NULL-GENE", data[,colGeneID])
-    rowControl <- c(rowControl, which(data[, colGeneID] == ""))
+  ##-data <- read.table(dataFile, sep = sep, header = T, as.is = T)
+  ##- Check to see if data contains comma as thousand seperator (not decimal point)
+  colRead <- rep("NULL", dataColCount)
+  colRead[colSignal[1]] <- "character"
+  data <- read.table(dataFile, header=T, sep=sep, nrow=5000, colClasses=colRead)
+
+  if(any(grep(",", data[, 1]))) {
+    colRead <- rep("character", dataColCount)
+    data <- read.table(dataFile, header=T, sep=sep, nrow=36000, colClasses=colRead, as.is=T,
+        comment.char="", na.string=c("NA", "MultipleValues", "Multiple Values"))
+    cat("Checking data format:")
+    flush.console()
+    data[, c(colSignal, colSN, colFlag)] = apply(data[, c(colSignal, colSN, colFlag)], 2, function(x) {
+      cat(":"); flush.console()
+      as.numeric(gsub(",", "", x))})
+    cat("||\n")
   }
   else {
-    geneID = as.vector(data[, colProbeID])
-    for(i in seq(along = controlType)) {
-      rowControl = c(rowControl, grep(controlType, data[, colProbeID], ignore.case = T))
-    }
+    data <- read.table(dataFile, header = T, sep = sep, nrow = 36000, colClasses = colClass,
+       comment.char = "", na.string = c("NA", "MultipleValues", "Multiple Values"))
   }
-  
-  controlData <- data[rowControl,]
-                                        #- Remove control data for processing
-  if(any(rowControl)) {
-    data <- data[-rowControl,]
-    geneID = geneID[-rowControl]
-  }
-  
-  raw <- as.matrix(data[, colSignal[ordSig]])
-  sn <- as.matrix(data[, colSN[ordSN]])
-  flag <- as.matrix(data[, colFlag[ordFlag]])
-  
-  colnames(raw) <- sampleName
-  rownames(raw) <- data[, colProbeID]
-  colnames(sn) <- paste("SN", sampleName)
-  rownames(sn) <- data[, colProbeID]
-  colnames(flag) <- paste("Flag", sampleName)
-  rownames(flag) <- data[, colProbeID]
-  data = NULL
-  gc()
-  
-   #- Create a directory to put all the figures in
+
+  cat("Finished data reading.\n")
+  ##- Create a directory to put all the figures in
   resultDir <- paste("Result_", gsub(" ", "", group), "/", sep = "")
   if(! file.exists(resultDir)) {
     dir.create(resultDir, showWarnings = FALSE)
@@ -322,45 +299,85 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
   if(! file.exists(jpgDir)) {
     dir.create(jpgDir, showWarning = FALSE)
   }
-  
+
   cat("The results will be in the folder:", resultDir, "\n")
   flush.console()
+                                           #- Process controls
+  controlType <- c("Buffer_Blank", "CL_ControlLadder", "CLFL_GridLandmark", "FL_ControlLadder", "FL_Fiducial_Cp",
+                   "Hybridization_Control", "ICP_FLOnly_Control", "IVT_Kit_Control", "Manufacturing_Test_Control",
+                   "Negative_Control", "Positive_Control", "RT_Kit_Control", "Blank")
   
-   #- Processing control data and plot
-  conData = controlData[, c(colProbeID, colSignal[ordSig])]
-  colnames(conData) = c("ProbeID", sampleName)
-
-  controlToExport = c("Hybridization_Control", "IVT_Kit_Control", "RT_Kit_Control")
-  idxControlToExport = c()
-  for(i in seq(along =controlToExport)) {
-    idxControlToExport = c(idxControlToExport, grep(controlToExport[i], conData[, 1]))
+  controlName <- c("Buffer_Blank", "CL_Ladder", "CLFL_Grid", "FL_Ladder", "FL_Fiducial",
+                   "Hybridization", "ICP_FLOnly", "IVT_Kit", "Manufacturing",
+                   "Negative", "Positive", "RT_Kit", "Blank")
+  controlPlot = c(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, showHiddenPlot, TRUE, TRUE, TRUE, FALSE)
+  names(controlType) <- controlName
+  rowControl = c()
+  if(colGeneID != 0) {
+    geneID <- as.vector(data[, colGeneID])
+    rowControl <- grep("NULL-GENE", data[,colGeneID])
+    rowControl <- c(rowControl, which(data[, colGeneID] == ""))
   }
-  probeSortToExport = sort(conData[idxControlToExport, colProbeID], index = T)$ix
+  else {
+    geneID <- as.vector(data[, colProbeID])
+    for(i in seq(along = controlType)) {
+      rowControl <- c(rowControl, grep(controlType, data[, colProbeID], ignore.case = T))
+    }
+  }
+  
+  controlData <- data[rowControl,]
+                                        #- Remove control data for processing
+  if(any(rowControl)) {
+    data <- data[-rowControl,]
+    geneID <- geneID[-rowControl]
+  }
+  
+  rawSig <- as.matrix(data[, colSignal[ordSig]])
+  sn <- as.matrix(data[, colSN[ordSN]])
+  flag <- as.matrix(data[, colFlag[ordFlag]])
+  
+  colnames(rawSig) <- sampleName
+  rownames(rawSig) <- data[, colProbeID]
+  colnames(sn) <- paste("SN", sampleName)
+  rownames(sn) <- data[, colProbeID]
+  colnames(flag) <- paste("Flag", sampleName)
+  rownames(flag) <- data[, colProbeID]
+  data <- NULL
+  
+  ##- Processing control data and plot
+  conData <- controlData[, c(colProbeID, colSignal[ordSig])]
+  colnames(conData) <- c("ProbeID", sampleName)
+
+  controlToExport <- c("Hybridization_Control", "IVT_Kit_Control", "RT_Kit_Control")
+  idxControlToExport <- c()
+  for(i in seq(along = controlToExport)) {
+    idxControlToExport <- c(idxControlToExport, grep(controlToExport[i], conData[, 1]))
+  }
+  probeSortToExport <- sort(conData[idxControlToExport, colProbeID], index = T)$ix
   write.table(conData[idxControlToExport[probeSortToExport],],
-    file = paste(dataDir, "ControlRawData.csv", sep = ""), row.names = F, col.names = T, sep = ",")
+    file=paste(dataDir, "ControlRawData.csv", sep = ""), row.names=F, col.names=T, sep=",")
    
   icpPlot(conData, pdfDir = pdfDir, jpgDir = jpgDir)
   if(showControlSN) {
-    conData = controlData[, c(colProbeID, colSN[ordSig])]
-    colnames(conData) = c("ProbeID", sampleName)
+    conData <- controlData[, c(colProbeID, colSN[ordSig])]
+    colnames(conData) <- c("ProbeID", sampleName)
     icpPlot(conData, plotWhat = 'SN', pdfDir = pdfDir, jpgDir = jpgDir)
   }
-  conData = NULL
-  controlData = NULL
+  conData <- NULL
+  controlData <- NULL
+  gc()
    
-  write.csv(raw, file = paste(dataDir, "ExpressionRawData.csv", sep = ""))
+  write.csv(rawSig, file = paste(dataDir, "ExpressionRawData.csv", sep = ""))
    
   cat("\nPerform basic analysis for non-normalized data ...\n")
                                         #- probes detectable
-  probeDetect <- apply(sn, 2, function(x) {sum(x >= snThresh)})
+  probeDetect <- apply(sn, 2, function(x) {sum(x >= snThresh, na.rm = T)})
   names(probeDetect) <- sampleName
   ymin <- min(probeDetect, na.rm = T)
   ymax <- max(probeDetect, na.rm = T)
   ydiff <- ymax - ymin
   fname <- paste("QC_DetectableProbeSN", snThresh, sep = "")
   
-   #bmp(filename = paste(fname, ".bmp", sep = ""), width = 800, height = 600)
-   #-chLength <- max(strwidth(names(probeDetect), units = "figure") * par("fin")[2], 1, na.rm = T)
   chLength <- max(nchar(names(probeDetect)) * 1.2, 5)
   print(paste("Creating barplot for probes detectable ...", fname))
   probeCount = dim(sn)[1]
@@ -369,34 +386,38 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
   pdf(file = paste(pdfDir, fname, ".pdf", sep = ""), width = 10, height = 8)
   dev.control("enable")
   par(mar = c(chLength, 5, 4, 2))
-   #-par(mai = c(chLength + 0.5, 1, 1, 0.2))
   barplot(probeDetect, ylim = c(ydiff, ymax + ydiff), xpd = F, las = 2,
           col = color.label, main = paste("Probe Detectable (S/N >=", snThresh, ")"))
   text(seq(arrayCount) * 1.2 - 0.5, probeDetect + ydiff / 5, labels = pctLabel)
   savejpg(paste(jpgDir, fname, sep = ""), width = 800, height = 600)
   dev.off()
-   
-   #- Create new exprSet
-  esetUse <- new("exprSet", exprs = raw, se.exprs = sn, phenoData = pd)
+  probeDetect <- NULL
+  
+  ##- Create new exprSet
+  ##-esetUse <- new("exprSet", exprs = rawSig, se.exprs = sn, phenoData = pd)
+  pheno <- as(pd, "AnnotatedDataFrame")
+  esetUse <- new("ExpressionSet", phenoData=pheno, exprs=rawSig, snDetect=sn, flags=flag)
 
   if(! showControlOnly) {
-    doPlotEset(esetUse, group, name = "Raw", test = FALSE, rawData = TRUE, snThresh = snThresh)
-    esetUse = NULL
+    if(!esetOnly) {
+      doPlotEset(esetUse, group, name = "Raw", test = FALSE, rawData = TRUE, snThresh = snThresh)
+    }
+    esetUse <- NULL
     for(i in seq(along = normMethod)) {
       if(normMethod[i] == "trimAMean") {
-        normData <- log2(qnNormalize(raw, snr = sn, method = normMethod[i], snThresh = snThresh))
+        normData <- log2(qnNormalize(rawSig, snr = sn, method = normMethod[i], snThresh = snThresh))
       }
       else {
-        normData <- log2(qnNormalize(raw, method = normMethod[i]))
+        normData <- log2(qnNormalize(rawSig, method = normMethod[i]))
       }
     
       if(impute == "avg" || impute == "knn") {
-        flagSet = which(flag > 5000)
-        raw[flagSet] = NA
+        flagSet <- which(flag > 5000)
+        rawSig[flagSet] <- NA
 
-        imputedValue = imputeFlag(normData, pd = pd, group = group, impute = impute)
-        normData = imputedValue$imputedData
-        flagCount = imputedValue$flagCount
+        imputedValue <- imputeFlag(normData, pd = pd, group = group, impute = impute)
+        normData <- imputedValue$imputedData
+        flagCount <- imputedValue$flagCount
         if(any(flagCount > 0)) {
           flagged <- which(flagCount > 0)
           if(impute == "knn") {
@@ -407,14 +428,14 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
             flush.console()
           }
           else {
-            rowImputed = imputedValue$rowImputed
+            rowImputed <- imputedValue$rowImputed
             if(length(rowImputed) > 0) {
               print(paste("Array ", sampleName[flagged], " has ", flagCount, " FLAGS > 5000", sep = ""))             
               cat("The signals of each flagged probe were replaced with average signals\n",
                   "   from replicate arrays within the same subgroup (",
                   paste(grpMember, collapse = ", "), ").", sep = "")
               filename <- paste(dataDir, "ProbeImputed_", group, ".csv", sep = "")
-              write.table(rownames(raw)[rowImputed], file = filename, sep = ",", row.names = F, col.names = F)
+              write.table(rownames(rawSig)[rowImputed], file = filename, sep = ",", row.names = F, col.names = F)
               cat("\nThe imputed probes were written to file:", filename, "\n")
             }
             else {
@@ -424,38 +445,43 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
           }
         }
       }
-      colnames(normData) = paste(normMethod[i], colnames(normData))
+      colnames(normData) <- paste(normMethod[i], colnames(normData))
     
                                         #- write quantile normalized data to file
       csvName <- paste("Expression_", normMethod[i], "Normalized.csv", sep = "")
-      normExp =  cbind(ProbeID = rownames(normData), GeneID = geneID, normData, sn, flag)
+      normExp <-  cbind(ProbeID = rownames(normData), GeneID = geneID, normData, sn, flag)
       write.table(normExp, file = paste(dataDir, csvName, sep = ""), sep = ",",
                   col.names = T, row.names = F)
       cat("\n", normMethod[i], "normalized data was saved to:\n    ", paste(dataDir, csvName, sep = ""), "\n")
       flush.console()
-      normExp = NULL
+      normExp <- NULL
+      rm("normExp")
+      gc()
 
-      colnames(normData) = colnames(raw)
-      eset <- new("exprSet", exprs = normData, se.exprs = sn, phenoData = pd)
+      colnames(normData) = colnames(rawSig)
+      ##-eset <- new("exprSet", exprs = normData, se.exprs = sn, phenoData = pd)
+      eset <- new("ExpressionSet", phenoData=pheno, exprs=normData, snDetect=sn, flags=flag)
       if(normMethod[i] == normUse) {
         esetUse <- eset
       }
-      esetFile = sub(".txt", "", designFile);  esetFile = sub(".csv", "", esetFile)
-      esetFile = paste(esetFile, "_eset_", normMethod[i], format(Sys.time(), "%d%b%Y"), ".Rdata", sep = "")
+      esetFile <- sub(".txt", "", designFile);  esetFile = sub(".csv", "", esetFile)
+      esetFile <- paste(esetFile, "_eset_", normMethod[i], format(Sys.time(), "%d%b%Y"), ".Rdata", sep = "")
       save(eset, file = esetFile)
       cat("\nThe expression data object was saved to R workspace file:\n    ", esetFile, "\n")
     }
     
     cat("\nPerform data analysis on", normUse, "normalized data ...\n")
     flush.console()
-    data = NULL
-    raw = NULL
-    normData = NULL
-    sn = NULL
-    flag = NULL
-    geneID = NULL
+    data <- NULL
+    rawSig <- NULL
+    normData <- NULL
+    sn <- NULL
+    flag <- NULL
+    geneID <- NULL
     gc()
-    doPlotEset(esetUse, group, name = normUse, test = test, ...)
+    if(!esetOnly) {
+      doPlotEset(esetUse, group, name = normUse, test = test, ...)
+    }
   }  
   return(esetUse)	
 }
