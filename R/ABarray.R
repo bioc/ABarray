@@ -277,7 +277,7 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
     cat("||\n")
   }
   else {
-    data <- read.table(dataFile, header = T, sep = sep, nrow = 36000, colClasses = colClass,
+    data <- read.table(dataFile, header = T, sep = sep, nrow = 36000, colClasses = colRead,
        comment.char = "", na.string = c("NA", "MultipleValues", "Multiple Values"))
   }
 
