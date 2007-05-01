@@ -266,20 +266,47 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
   data <- read.table(dataFile, header=T, sep=sep, nrow=5000, colClasses=colRead)
 
   if(any(grep(",", data[, 1]))) {
-    colRead <- rep("character", dataColCount)
+    colRead[c(colProbeID, colSignal, colSn, colFlag)] <- "character"
+    if(colGeneID > 0) {
+      colRead[colGeneID] <- "character"
+    }
     data <- read.table(dataFile, header=T, sep=sep, nrow=36000, colClasses=colRead, as.is=T,
         comment.char="", na.string=c("NA", "MultipleValues", "Multiple Values"))
     cat("Checking data format:")
     flush.console()
-    data[, c(colSignal, colSN, colFlag)] = apply(data[, c(colSignal, colSN, colFlag)], 2, function(x) {
+    data = apply(data, 2, function(x) {
       cat(":"); flush.console()
       as.numeric(gsub(",", "", x))})
     cat("||\n")
   }
   else {
+    colRead[c(colSignal, colSN, colFlag)] <- "numeric"
+    colRead[colProbeID] <- "character"
+    if(colGeneID > 0) {
+      colRead[colGeneID] <- "character"
+    }
     data <- read.table(dataFile, header = T, sep = sep, nrow = 36000, colClasses = colRead,
        comment.char = "", na.string = c("NA", "MultipleValues", "Multiple Values"))
   }
+  
+  ##- Since some columns are skipped, we need to find which column contains signal, etc
+  ##-
+  dataColNames <- colnames(data)
+  colProbe <- grep("probe", dataColNames, ignore.case=T)
+  colGene <- grep("gene", dataColNames, ignore.case=T)
+  colSig <- grep("signal", dataColNames, ignore.case=T)
+  colSnr <- grep("S.N", dataColNames, ignore.case=T)
+  colFlg <- grep("flag", dataColNames, ignore.case=T)
+  
+  colSigOrd <- c()
+  colSnrOrd <- c()
+  colFlgOrd <- c()
+  for(assayID in idUse) {
+    colSigOrd <- c(colSigOrd, intersect(colSig, grep(assayID, dataColNames, ignore.case=T)))
+    colSnrOrd <- c(colSnrOrd, intersect(colSnr, grep(assayID, dataColNames, ignore.case=T)))
+    colFlgOrd <- c(colFlgOrd, intersect(colFlg, grep(assayID, dataColNames, ignore.case=T)))
+   }    
+    
 
   cat("Finished data reading.\n")
   ##- Create a directory to put all the figures in
@@ -332,20 +359,23 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
     geneID <- geneID[-rowControl]
   }
   
-  rawSig <- as.matrix(data[, colSignal[ordSig]])
-  sn <- as.matrix(data[, colSN[ordSN]])
-  flag <- as.matrix(data[, colFlag[ordFlag]])
+  ##rawSig <- as.matrix(data[, colSignal[ordSig]])
+  ##sn <- as.matrix(data[, colSN[ordSN]])
+  ##flag <- as.matrix(data[, colFlag[ordFlag]])
+  rawSig <- as.matrix(data[, colSigOrd])
+  sn <- as.matrix(data[, colSnrOrd])
+  flag <- as.matrix(data[, colFlgOrd])
   
   colnames(rawSig) <- sampleName
-  rownames(rawSig) <- data[, colProbeID]
+  rownames(rawSig) <- data[, colProbe]
   colnames(sn) <- paste("SN", sampleName)
-  rownames(sn) <- data[, colProbeID]
+  rownames(sn) <- data[, colProbe]
   colnames(flag) <- paste("Flag", sampleName)
-  rownames(flag) <- data[, colProbeID]
+  rownames(flag) <- data[, colProbe]
   data <- NULL
   
   ##- Processing control data and plot
-  conData <- controlData[, c(colProbeID, colSignal[ordSig])]
+  conData <- controlData[, c(colProbe, colSigOrd)]
   colnames(conData) <- c("ProbeID", sampleName)
 
   controlToExport <- c("Hybridization_Control", "IVT_Kit_Control", "RT_Kit_Control")
@@ -353,13 +383,13 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
   for(i in seq(along = controlToExport)) {
     idxControlToExport <- c(idxControlToExport, grep(controlToExport[i], conData[, 1]))
   }
-  probeSortToExport <- sort(conData[idxControlToExport, colProbeID], index = T)$ix
+  probeSortToExport <- sort(conData[idxControlToExport, colProbe], index = T)$ix
   write.table(conData[idxControlToExport[probeSortToExport],],
     file=paste(dataDir, "ControlRawData.csv", sep = ""), row.names=F, col.names=T, sep=",")
    
   icpPlot(conData, pdfDir = pdfDir, jpgDir = jpgDir)
   if(showControlSN) {
-    conData <- controlData[, c(colProbeID, colSN[ordSig])]
+    conData <- controlData[, c(colProbe, colSnrOrd)]
     colnames(conData) <- c("ProbeID", sampleName)
     icpPlot(conData, plotWhat = 'SN', pdfDir = pdfDir, jpgDir = jpgDir)
   }
