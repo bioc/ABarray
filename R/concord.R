@@ -6,20 +6,21 @@
 function(sn, snThresh = 3) {
 	ncol <- ncol(sn)
 	nrow <- nrow(sn)
-	data <- array(1, dim=c(ncol, ncol))
-	rownames(data) <- colnames(sn)
-	colnames(data) <- colnames(sn)
-
+	concor <- array(1, dim=c(ncol, ncol))
+	rownames(concor) <- colnames(sn)
+	colnames(concor) <- colnames(sn)
+	
+	snr <- sn >= snThresh
+	detect <- colSums(snr, na.rm=T)
 	for(i in 1:ncol) {
-	   for(j in 1: ncol) {
-			sn.com <- length(intersect(which(sn[,i] >= snThresh), which(sn[,j] >= snThresh)))
-			#sn.union <- length(union(which(sn[,i] >= 3), which(sn[,j] >= 3)))
-			sn.ave <- (sum(sn[,i] >= snThresh, na.rm = T) + sum(sn[,j] >= snThresh, na.rm = T)) / 2
-			#data[i,j] <- sn.com / sn.union
-			data[i,j] <- sn.com / sn.ave
-		}
-	}
-	return(data)
+    for(j in 1:ncol) {
+      tmp <- cbind(snr[, i], snr[, j])
+      sn.com <- sum(rowSums(tmp, na.rm=T) >= 2)
+      sn.ave <- (detect[i] + detect[j]) / 2
+      concor[i, j] <- sn.com / sn.ave
+    }
+  }
+  return(concor)
 }
 
 ####################################################################
