@@ -271,7 +271,7 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
       colRead[colGeneID] <- "character"
     }
     data <- read.table(dataFile, header=T, sep=sep, nrow=36000, colClasses=colRead, as.is=T,
-        comment.char="", na.string=c("NA", "MultipleValues", "Multiple Values"))
+        check.names=F, comment.char="", na.string=c("NA", "MultipleValues", "Multiple Values"))
     cat("Checking data format:")
     flush.console()
     data = apply(data, 2, function(x) {
@@ -285,8 +285,8 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
     if(colGeneID > 0) {
       colRead[colGeneID] <- "character"
     }
-    data <- read.table(dataFile, header = T, sep = sep, nrow = 36000, colClasses = colRead,
-       comment.char = "", na.string = c("NA", "MultipleValues", "Multiple Values"))
+    data <- read.table(dataFile, header=T, sep=sep, nrow=36000, colClasses=colRead,
+       check.names=F, comment.char = "", na.string = c("NA", "MultipleValues", "Multiple Values"))
   }
   
   ##- Since some columns are skipped, we need to find which column contains signal, etc
@@ -326,6 +326,7 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
   if(! file.exists(jpgDir)) {
     dir.create(jpgDir, showWarning = FALSE)
   }
+  
 
   cat("The results will be in the folder:", resultDir, "\n")
   flush.console()
