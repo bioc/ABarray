@@ -16,6 +16,11 @@ function (eData, snr, method = "quantile", snThresh = 3, ties = TRUE)
   theScale = rep(1, eDim[2])
   targetMedian = median(as.vector(eData), na.rm = T)
   
+  ##- No normalization
+  if(method == "none") {
+    return(eData)
+  }
+  
     #- Perform quantile normalizaiton
   if(method == "quantile") {
     O <- S <- array(, eDim)

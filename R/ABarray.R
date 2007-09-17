@@ -36,7 +36,8 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
     ifelse(normMethod == "median",  (normUse <- "median"),
     ifelse(normMethod == "trimMean", (normUse <- "trimMean"),
     ifelse(normMethod == "trimAMean", (normUse <- "trimAMean"),
-    (normMethod <- c(normUse, "mean", "median", "trimMean", "trimAMean")))))))
+    ifelse(normMethod == "none", (normUse <- "none"),
+    (normMethod <- c(normUse, "mean", "median", "trimMean", "trimAMean"))))))))
   }
    
    #- Process additional arguments for sweave and hidden variables, ...
@@ -437,6 +438,9 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
     for(i in seq(along = normMethod)) {
       if(normMethod[i] == "trimAMean") {
         normData <- log2(qnNormalize(rawSig, snr = sn, method = normMethod[i], snThresh = snThresh))
+      }
+      else if (normMethod[i] == "none") {
+        normData <- log2(rawSig)
       }
       else {
         normData <- log2(qnNormalize(rawSig, method = normMethod[i]))
