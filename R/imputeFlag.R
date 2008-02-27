@@ -2,12 +2,12 @@
 
 imputeFlag = function(rawSig, pd = NULL, group = "", impute = "avg") {
   flagCount <- rep(0, dim(rawSig)[2])
-  imputeValue = list(flagCount = flagCount)
+  imputeValue <- list(flagCount = flagCount)
 
   rowImputed <- c()
   flagSet <- is.na(rawSig)    #- which flag
   flagCount <- apply(flagSet, 2, sum)
-  imputeValue$flagCount = flagCount
+  imputeValue$flagCount <- flagCount
   
   #- knn impute Removed, since R 2.4, as it will not pass R check or build
   #- without a funcitonal impute package.
@@ -22,8 +22,8 @@ imputeFlag = function(rawSig, pd = NULL, group = "", impute = "avg") {
 
   ##  library(impute)
   ##  imputed <- impute.knn(rawSig)
-  ## imputeValue$imputedData = imputed$data
-  ##  imputeValue$rowImputed = NULL
+  ##  imputeValue$imputedData <- imputed$data
+  ##  imputeValue$rowImputed <- NULL
   ##}
   if(impute == "knn") {
     cat("\nknn imputation is NOT implemented, using default subgroup average imputation\n")
@@ -33,16 +33,16 @@ imputeFlag = function(rawSig, pd = NULL, group = "", impute = "avg") {
     flush.console()
 
      #- Average impute
-    grpMember = levels(pd[, group])
+    grpMember <- levels(pd[, group])
     for(i in 1:dim(rawSig)[1]) {
       if(sum(flagSet[i,]) > 0) {
         for(j in 1:length(grpMember)) {
           memberHere <- which(pd[, group] == grpMember[j])
-          if(sum(flagSet[i, memberHere], na.rm = T) > 0) {
+          if(sum(flagSet[i, memberHere], na.rm = TRUE) > 0) {
             flagged <- which(flagSet[i, memberHere])
             if(length(memberHere) - length(flagged) > 1) {
                                         #avg <- mean(rawSig[i, memberHere][-flagged])
-              avg <- mean(rawSig[i, memberHere[-flagged]], na.rm = T)
+              avg <- mean(rawSig[i, memberHere[-flagged]], na.rm = TRUE)
               if(! is.na(avg)) {
                 rawSig[i, memberHere[flagged]] <- avg
                 rowImputed <- c(rowImputed, i)
@@ -52,8 +52,8 @@ imputeFlag = function(rawSig, pd = NULL, group = "", impute = "avg") {
         }
       }
     }
-    imputeValue$imputedData = rawSig
-    imputeValue$rowImputed = rowImputed    
+    imputeValue$imputedData <- rawSig
+    imputeValue$rowImputed <- rowImputed    
   ##}
   #-write.table(rawSig, file = "ImputedValue.csv", sep = ",")
   return(imputeValue)

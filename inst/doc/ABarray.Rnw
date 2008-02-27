@@ -322,7 +322,7 @@ takes 3 parameter arguments. The first argument is the name of the data file.
 The second argument is the name of the expriment design file. The third
 argument is the name of the experiment group defined in the experiment design
 file on which t test and other analysis should be performed. It will generate
-an \Robject{exprSet} expression value object. 
+an \Robject{ExpressionSet} expression value object. 
 
 In the following example, the name of the data file is called 'RawExpressionABData.txt'; 
 the name of the experiment design file is called 'ExperimentDesign.csv'; and the 'tissue'
@@ -425,7 +425,7 @@ FDR=0.25, significant probes: 19373
 
 \section{Information about QC and Analysis Results}
 The function \Rfunction{ABarray} produced a lot of results. In addition,
-it returns a \Robject{exprSet} object. This make it possible to use
+it returns an \Robject{ExpressionSet} object. This make it possible to use
 vast amount of packages and functions in Bioconductor (www.bioconductor.com)
 for further statistical analysis, e.g., classification, prediction.
 
@@ -519,7 +519,7 @@ test results are written to file as well if it is performed.
 \subsection{Requred Data and Function Arguments}
 \begin{itemize}
 \item
-An \Robject{exprSet} object. The S/N ratio information is stored in \Robject{se.exprs}
+An \Robject{ExpressionSet} object. The S/N ratio information is stored in \Robject{se.exprs}
 slot. This will automatically be created from \Rfunction{ABarray} in \Rpackage{ABarray}
 package. The analysis will filter probes based on S/N >= 3 in 75\% of samples. If S/N
 is not available, all probes will be used for analysis (no filtering will be applied).
@@ -664,7 +664,7 @@ test, the fold changes will be fold changes of averaged expression values.
 \subsection{Required Data and Function Arguments}
 \begin{itemize}
 \item
-An \Robject{exprSet} object. The S/N ratio information is stored in \Robject{se.exprs}
+An \Robject{ExpressionSet} object. The S/N ratio information is stored in \Robject{se.exprs}
 slot. This will automatically be created from \Rfunction{ABarray} in \Rpackage{ABarray}
 package. The analysis will filter probes based on S/N and percentage of samples
 detectable within subgroups. If S/N is not available, all probes will be used for
@@ -781,29 +781,29 @@ detected in 50\% or more samples in all the subgroups, it is removed
 from ANOVA analysis.
 
 \subsection{Required Data Object}
-The function \Rfunction{doANOVA} works on either an \Rclass{exprSet} object
-or expression \Robject{matrix}. If \Rclass{exprSet} object is used, experiment
-design information should be already in the \Rclass{exprSet} object. If
-expression matrix is used, rows of the matrix should be probes or genes,
+The function \Rfunction{doANOVA} works on either an \Rclass{ExpressionSet} object
+or expression \Robject{matrix}. If \Rclass{ExpressionSet} object is used, experiment
+design information should be already in the \Rclass{ExpressionSet} object. If
+expression \Robject{matrix} is used, rows of the matrix should be probes or genes,
 and columns of the matrix should be hybridization (or arrays).
 
 \begin{itemize}
-\item \Robject{exprSet} object. The object can be generated from function
+\item \Robject{ExpressionSet} object. The object can be generated from function
 \Rfunction{ABarray} in package \Rpackage{ABarray}. For additional information
 about functionality of \Rfunction{ABarray}, refer to document from
 \Rfunction{ABarray}. The object can also be generated from other packages
 in \Rpackage{Bioconductor} project. See www.bioconductor.org for more
 information about other packages.
 \item factor1. Factor name that the ANOVA test will be performed on.
-If \Robject{exprSet} object is used, either name or labels can be used. The name
-should be present in experiment design informaton in \Robject{exprSet} object.
-Function \Rfunction{ABarray} in package \Rpackage{ABarray} automatically creates
-such information if appropriate experiment design file is used when function
-\Rfunction{ABarray} was run. If expression matrix is to be used, \Robject{lables}
-should be used. A \Robject{label} is a vector which labels each hybridization
-(or array) into groups. For example, a \Robject{label} <- c('drug1', 'drug1',
-'drug2', 'drug2', 'none', 'none') indicates samples for arrays 1 and 2 were
-treated with drug1, and samples for arrays 5 and 6 were not treated.
+If an \Robject{ExpressionSet} object is used, either name or labels can be used.
+The name should be present in experiment design informaton in the
+\Robject{ExpressionSet} object. Function \Rfunction{ABarray} in package
+\Rpackage{ABarray} automatically creates such information if appropriate experiment
+design file is used when function \Rfunction{ABarray} was run. If expression matrix
+is to be used, \Robject{lables} should be used. A \Robject{label} is a vector which
+labels each hybridization (or array) into groups. For example, a \Robject{label} <- 
+c('drug1', 'drug1', 'drug2', 'drug2', 'none', 'none') indicates samples for arrays 1
+and 2 were treated with drug1, and samples for arrays 5 and 6 were not treated.
 \item optional factor2. If the second factor is provided, two way ANOVA will
 be performed.
 \end{itemize}
@@ -999,10 +999,10 @@ expressed genes with a small number of replicated microarrays. Bioinformatics,
 19, 1945-1951
 
 \subsection{Required Data Object}
-The function \Rfunction{doANOVA} works on  \Rclass{exprSet} object.
+The function \Rfunction{doANOVA} works on an \Rclass{ExpressionSet} object.
 
 \begin{itemize}
-\item \Robject{exprSet} object. The object can be generated from function
+\item \Robject{ExpressionSet} object. The object can be generated from function
 \Rfunction{ABarray} in package \Rpackage{ABarray}. For additional information
 about functionality of \Rfunction{ABarray}, refer to document from
 \Rfunction{ABarray}. The object can also be generated from other packages

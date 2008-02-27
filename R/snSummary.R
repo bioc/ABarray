@@ -20,7 +20,7 @@ function(eset, snThresh = 3, group, grpMember) {
 	for(i in 1:subgrpCount) {
 		idx.member <- which(pd[, colnames(pd) == group] == grpMember[i])
 		memberCount <- length(idx.member)
-		snSum <- apply(sn[, idx.member] >= snThresh, 1, sum, na.rm = T)
+		snSum <- apply(sn[, idx.member] >= snThresh, 1, sum, na.rm = TRUE)
 
 		snT[, i] <- snSum / memberCount 
 	}

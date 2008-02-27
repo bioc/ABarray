@@ -11,11 +11,11 @@ function(sn, snThresh = 3) {
 	colnames(concor) <- colnames(sn)
 	
 	snr <- sn >= snThresh
-	detect <- colSums(snr, na.rm=T)
+	detect <- colSums(snr, na.rm=TRUE)
 	for(i in 1:ncol) {
     for(j in 1:ncol) {
       tmp <- cbind(snr[, i], snr[, j])
-      sn.com <- sum(rowSums(tmp, na.rm=T) >= 2)
+      sn.com <- sum(rowSums(tmp, na.rm=TRUE) >= 2)
       sn.ave <- (detect[i] + detect[j]) / 2
       concor[i, j] <- sn.com / sn.ave
     }

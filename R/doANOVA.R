@@ -3,7 +3,7 @@
 #- Perform anova analysis for a given group
 doANOVA <- function(eset, group1, group2, snThresh = 3, detectSample = 0.5) {
   anovaFun <- c()
-  if(! is(eset, "ExpressionSet")) {
+  if(!is(eset, "ExpressionSet")) {
     print("ExpressionSet object must be provided")
     return()
   }
@@ -11,31 +11,31 @@ doANOVA <- function(eset, group1, group2, snThresh = 3, detectSample = 0.5) {
   if(missing(group2)) {
     cat("\nPerforming one-way ANOVA for", group1, "...\n")
     flush.console()
-    resultDir = paste("Result_", gsub(" ", "", group1), "/", sep = "")
-    if(! file.exists(resultDir)) {
+    resultDir <- paste("Result_", gsub(" ", "", group1), "/", sep = "")
+    if(!file.exists(resultDir)) {
       dir.create(resultDir, showWarnings = FALSE)
     }
-    dataDir = paste(resultDir, "DataResult/", sep = "")
-    if(! file.exists(dataDir)) {
+    dataDir <- paste(resultDir, "DataResult/", sep = "")
+    if(!file.exists(dataDir)) {
       dir.create(dataDir, showWarnings = FALSE)
     }
     fname <- paste(dataDir, "ST_ANOVA_oneway_", group1, ".csv", sep = "")
 
     factor1 <- as.factor(pData(eset)[, group1])
 
-    snPresent = TRUE
+    snPresent <- TRUE
     if(dim(assayDataElement(eset, "snDetect"))[1] < 2 || 
             sum(is.na(assayDataElement(eset, "snDetect")[,1])) > 1) {
       sn <- array(100, dim(data))
       snPresent <- FALSE
     }
     if(snPresent) {
-      snT = snSummary(eset, snThresh, group1)
-      rowUse = which(snT[, 1] >= detectSample)
+      snT <- snSummary(eset, snThresh, group1)
+      rowUse <- which(snT[, 1] >= detectSample)
       for(i in 2:length(levels(factor1))) {
-        rowUse = union(rowUse, which(snT[, i] >= detectSample))
+        rowUse <- union(rowUse, which(snT[, i] >= detectSample))
       }
-      dataf = exprs(eset[rowUse,])
+      dataf <- exprs(eset[rowUse,])
       cat("    Probes with S/N < ", snThresh, " in at least ", (100 - detectSample * 100),
           "% of samples in all subgroups of ", group1, " were not considered.\n", sep = "")
       flush.console()
@@ -48,7 +48,7 @@ doANOVA <- function(eset, group1, group2, snThresh = 3, detectSample = 0.5) {
     names(anova) <- rownames(dataf)
     
     write.table(data.frame("ProbeID" = rownames(dataf), "p value" = anova), file = fname, sep = ",",
-                row.names = F, col.names = T)
+                row.names = FALSE, col.names = TRUE)
     print(paste("One-way ANOVA results (",  length(rownames(dataf)), " probes) ",
                 "were written to file: ", fname, sep = ""))    
     invisible(anova)
@@ -56,8 +56,8 @@ doANOVA <- function(eset, group1, group2, snThresh = 3, detectSample = 0.5) {
   else {
     cat("Performing two-way ANOVA for", group1, "and", group2, "...\n")
     flush.console()
-    resultDir = paste("Result_", gsub(" ", "", group1), "_", gsub(" ", "", group2), "/", sep = "")
-    if(! file.exists(resultDir)) {
+    resultDir <- paste("Result_", gsub(" ", "", group1), "_", gsub(" ", "", group2), "/", sep = "")
+    if(!file.exists(resultDir)) {
       dir.create(resultDir, showWarnings = FALSE)
     }
     factor1 <- as.factor(pData(eset)[, group1])
@@ -101,7 +101,7 @@ doANOVA <- function(eset, group1, group2, snThresh = 3, detectSample = 0.5) {
 
     fname <- paste(resultDir, paste("ST_ANOVA", group1, group2, sep = "_"), ".csv", sep = "")
     write.table(cbind(ProbeID = rownames(dataf), anv), file = fname, sep = ",",
-                row.names = F, col.names = T)
+                row.names = FALSE, col.names = TRUE)
     print(paste("Two-way ANOVA results (", length(rownames(anv)), " probes) ",
                 "were written to file: ", fname, sep = ""))
     invisible(anv)

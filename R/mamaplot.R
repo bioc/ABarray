@@ -8,18 +8,18 @@ function (A, M, idx, subset = sample(1:length(M), min(c(10000, length(M)))),
 {
 	 #- idx: index of probes that are S/N >= 3
     fn.call <- list(...)
-    mean <- median(M, na.rm = T)
+    mean <- median(M, na.rm = TRUE)
     if (!is.element("ylim", names(fn.call))) {
-        yloc <- max(M, na.rm = T)
+        yloc <- max(M, na.rm = TRUE)
     }
     else {
-        yloc <- max(fn.call$ylim, na.rm = T)
+        yloc <- max(fn.call$ylim, na.rm = TRUE)
     }
     if (!is.element("xlim", names(fn.call))) {
-        xloc <- max(A, na.rm = T)
+        xloc <- max(A, na.rm = TRUE)
     }
     else {
-        yloc <- max(fn.call$xlim, na.rm = T)
+        yloc <- max(fn.call$xlim, na.rm = TRUE)
     }
     aux <- loess(M[subset] ~ A[subset], degree = 1, span = span, 
         family = family.loess)$fitted

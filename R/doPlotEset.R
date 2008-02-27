@@ -1,6 +1,6 @@
 #- $Id: doPlotEset.R,v 1.1.1.1 2006/06/06 22:06:37 sunya Exp $
 
-#- Main function to perform QC and analysis on exprSet data.
+#- Main function to perform QC and analysis on ExpressionSet data.
 
 "doPlotEset" <-
 function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
@@ -54,8 +54,8 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
   #- reorder the column based on group. Member of the same group should stay together
   idx.order <- c()
   
-  if ( ! is.null(pd) ) {
-    if( ! any(colnames(pd) == group)) {
+  if(!is.null(pd) ) {
+    if(!any(colnames(pd) == group)) {
       print("The group you provided does not match any in the eset")
       print("No processing will be provided")
       return()
@@ -76,7 +76,7 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
     snDetect <- snDetect[, idx.order]
   }
 
-  if(max(sigData, na.rm = T) > 2000) {
+  if(max(sigData, na.rm = TRUE) > 2000) {
     sigData <- log2(sigData)
   }
 	
@@ -143,12 +143,12 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
       for(i in 1:subgrpCount) {
         idx <- which(pd[, colnames(pd) == group] == members[i])
         if(length(idx) > 1) {
-          title = paste("MA Plot ", prefix, ": ", members[i], sep = "")
+          title <- paste("MA Plot ", prefix, ": ", members[i], sep = "")
           print(paste("Creating ", title, " ...", sep = ""))
           flush.console()
           fname <- paste("QC_MA_Plot_", prefix, "_", members[i], sep = "")
-          fWidth = pixelPerArray * length(idx)
-          fHeight = pixelPerArray * length(idx)
+          fWidth <- pixelPerArray * length(idx)
+          fHeight <- pixelPerArray * length(idx)
           if(fWidth < kWidth) {fWidth = kWidth}
           if(fHeight < kHeight) {fHeight = kHeight}
           pdf(file = paste(pdfDir, fname, ".pdf", sep = ""), width = fWidth /100, height = fHeight/100)
@@ -162,7 +162,8 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
           fname <- paste("QC_CVplot_", prefix, "_", members[i], sep = "")
           print(paste("Creating ", fname, " ...", sep = ""))
           flush.console()
-          fWidth = kWidth * 0.8; fHeight = kHeight * 0.8
+          fWidth <- kWidth * 0.8
+		  fHeight <- kHeight * 0.8
           pdf(file = paste(pdfDir, fname, ".pdf", sep = ""), width = fWidth/100, height = fHeight/100)
           dev.control("enable")
           cvvPlot(sigData[, idx], paste(members[i], "_", prefix, sep = ""))
@@ -180,8 +181,8 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
     if(nonFilterScatter) {
       print(paste("Creating scatter plot for", prefix, " ..."))
       flush.console()
-      fWidth = arrayCount * pixelPerArray
-      fHeight = arrayCount * pixelPerArray
+      fWidth <- arrayCount * pixelPerArray
+      fHeight <- arrayCount * pixelPerArray
       if(fWidth < kWidth) {fWidth = kWidth}
       if(fHeight < kHeight) {fHeight = kHeight}
       fname <- paste("QC_ScatterPlot_", prefix, sep = "")
@@ -197,8 +198,8 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
 	#- Scatter plot filtering S/N >= snTresh
     print(paste("Creating scatter plot filtering S/N <", snThresh," for", prefix, " ..."))
     flush.console()
-    fWidth = arrayCount * pixelPerArray
-    fHeight = arrayCount * pixelPerArray
+    fWidth <- arrayCount * pixelPerArray
+    fHeight <- arrayCount * pixelPerArray
     if(fWidth < kWidth) {fWidth = kWidth}
     if(fHeight < kHeight) {fHeight = kHeight}
     fname <- paste("QC_ScatterPlot_FilterSN", snThresh, "_", prefix, sep = "")
@@ -211,7 +212,7 @@ function(eset, group, name = "", snThresh = 3, test = TRUE, ...) {
           main = paste("Scatter plot SN >=", snThresh, gsub("_", " ", prefix)))
     #savejpg(paste(jpgDir, fname, sep = ""), width = fWidth, height = fHeight)
     dev.off()
-    dataFilter = NULL
+    dataFilter <- NULL
   }
 
 	#- correlation matrix and plot

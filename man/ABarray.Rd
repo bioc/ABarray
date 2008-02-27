@@ -1,7 +1,7 @@
 \name{ABarray}
 \alias{ABarray}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{ Utility to perform QA, data transformation and statistical analysis }
+\title{Utility to perform QA, data transformation and statistical analysis}
 \description{
   (1) Read output from AB1700 software output; (2) Create raw data QA
   and associated plots including boxplot, control data signal plot;
@@ -9,36 +9,36 @@
   Perform quantile normalization; (6) Perform t test and fold change,
   or ANOVA (using separate function if more than 2 subgroups). (7)
   Create heatmap with hierarchical clustering. (8) The results are
-  either in graphcis or text files.
+  either in graphics or text files.
 }
 \usage{
-ABarray(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = "quantile", ...)
+ABarray(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = "quantile", \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{dataFile}{ csv or tab delimit file contain expression
+  \item{dataFile}{csv or tab delimit file contain expression
 	 measurement that are output from AB1700 software
   }
-  \item{designFile}{ Experiment design file, including information for
-	 sample type and additional phenotype information }
-  \item{group}{ specify which group statistical test will be performed
-	 on. The samples will be ordered according the group }
-  \item{test}{ specify whether to perform t test. By default, t test
-	 will be performed using specified group information }
+  \item{designFile}{Experiment design file, including information for
+	 sample type and additional phenotype information.}
+  \item{group}{Specify which group statistical test will be performed
+	 on. The samples will be ordered according the group.}
+  \item{test}{Specify whether to perform t test. By default, t test
+	 will be performed using specified group information.}
   \item{impute}{Treat flagged value (above 5000) as missing value, and
-	 impute the missing value }
-  \item{normMethod}{ The method of normalizaiton. The default is "quantile". The
+	 impute the missing value.}
+  \item{normMethod}{The method of normalizaiton. The default is "quantile". The
     following normMethods are supported: quantile, mean, median, trimMean,
     and trimAMean. If the parameter value is one of the supported normMethods,
     the analysis will be performed on the chosen method. If the parameter
     value is "all", the analysis will be performed on quantile only, but
-    the normalization results will be produced for each of the normMethods. }
-  \item{...}{ Additional arguments. Use snThresh and/or detectSample to
+    the normalization results will be produced for each of the normMethods.}
+  \item{\dots}{Additional arguments. Use snThresh and/or detectSample to
 	 perform filtering. snThresh is the threshold of S/N value to be
 	 considered that the probe is detected (default value = 3, if
 	 snThresh is not specified). detectSample is used to determine if a
 	 probe should be included in statistical analysis (default value =
-	 0.5, ie 50\% of samples in any one subgroup). }
+	 0.5, ie 50\% of samples in any one subgroup).}
 }
 
 \details{
@@ -94,21 +94,21 @@ ABarray(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = "
 }
 
 \value{
-  An \code{exprSet} object. The \code{exprs} slot will be populated with
+  An \code{ExpressionSet} object. The \code{exprs} slot will be populated with
   normalized signals, \code{se.exprs} slot will be populated with
   S/N ratio values, and the \code{phenoData} slot will be populated with
   information from \code{designFile}. Further analysis can be performed
-  on the \code{exprSet} object with various R and Bioconductor packages.
+  on the \code{ExpressionSet} object with various R and Bioconductor packages.
 }
 
-\author{ Y Andrew Sun <sunya@appliedbiosystems.com> }
+\author{Y Andrew Sun <sunya@appliedbiosystems.com>}
 
-\seealso{ doPlotEset, doPlotFCT, doANOVA, matrixPlot, mvaPair2, doLPE,
-  doVennDiagram, hclusterPlot }
+\seealso{doPlotEset, doPlotFCT, doANOVA, matrixPlot, mvaPair2, doLPE,
+  doVennDiagram, hclusterPlot}
 
 \examples{
 #- eset <- ABarray(dataFile, designFile, "sampleGroup")
 #- eset <- ABarray(dataFile, designFile, "group", detectSample = 0.8)
 }
-\keyword{ manip }% at least one, from doc/KEYWORDS
 
+\keyword{manip}% at least one, from doc/KEYWORDS

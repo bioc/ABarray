@@ -47,16 +47,16 @@ function(eset, group, member, name = "", snThresh = 3, detectSample = 0.5) {
   resultDir <- paste("Result_", gsub(" ", "", group), "/", sep = "")
   if(! file.exists(resultDir)) {
      dir.create(resultDir, showWarnings = FALSE)
-	}
+  }
   dataDir = paste(resultDir, "DataResult/", sep = "")
   if(! file.exists(dataDir)) {
      dir.create(dataDir, showWarning = FALSE)
   }   
    
   fname <- paste(dataDir, "LPE", name, "_", group, "_", member[2], "_", member[1], ".csv", sep = "")
-  write.table(result, fname, sep = ",", col.names = T, row.names = F)
+  write.table(result, fname, sep = ",", col.names = TRUE, row.names = FALSE)
   print(paste("LPE results were written to file", fname))
-	invisible(lpe.fdr)
+  invisible(lpe.fdr)
 }
 
 #################################################

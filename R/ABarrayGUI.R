@@ -8,25 +8,25 @@ ABarrayGUI <- function() {
   tt <- tktoplevel()
   tkwm.title(tt, "AB Genome Survey Array Data Analysis")
 
-  designFile = ""
-  designFileVar = tclVar("")
-  dataFile = ""
-  dataFileVar = tclVar("")
+  designFile <- ""
+  designFileVar <- tclVar("")
+  dataFile <- ""
+  dataFileVar <- tclVar("")
 
-  group = ""
-  snThresh = ""
-  detectSample = ""
+  group <- ""
+  snThresh <- ""
+  detectSample <- ""
   groupNames <- c("Which Group")
-  groupSpecVar = tclVar(1)
-  ttest = FALSE
-  ttestVar = tclVar(1)
-  impute = "None"
-  imputeVar = tclVar(1)
-  snVar = tclVar("3")
-  detectSampleVar = tclVar("0.5")
+  groupSpecVar <- tclVar(1)
+  ttest <- FALSE
+  ttestVar <- tclVar(1)
+  impute <- "None"
+  imputeVar <- tclVar(1)
+  snVar <- tclVar("3")
+  detectSampleVar <- tclVar("0.5")
 
-  titleFont = "Helvetica 14"
-  normalFont = "Helvetica 10"
+  titleFont <- "Helvetica 14"
+  normalFont <- "Helvetica 10"
 
   #########################################################################
   #######################################################################
@@ -39,18 +39,18 @@ ABarrayGUI <- function() {
   }
 
   findDesignFile <- function() {
-    tclvalue(designFileVar) = tclvalue(tkgetOpenFile())
+    tclvalue(designFileVar) <- tclvalue(tkgetOpenFile())
     designFile <- tclvalue(designFileVar)
     sep <- "\t"
     if(any(grep(".csv", designFile))) {
 		sep <- ","
     }
-    design <- read.table(designFile, header = T, sep = sep)
+    design <- read.table(designFile, header = TRUE, sep = sep)
     designColname <- colnames(design)
-    colExclude = c()
-    nameExclude = c("sample", "assay", "array", "file")
+    colExclude <- c()
+    nameExclude <- c("sample", "assay", "array", "file")
     for(i in seq(along = nameExclude)) {
-      idx = grep(nameExclude[i], designColname, ignore.case = T)
+      idx <- grep(nameExclude[i], designColname, ignore.case = TRUE)
       if(any(idx)) {
         colExclude = c(colExclude, idx)
       }
@@ -85,7 +85,7 @@ ABarrayGUI <- function() {
   }
 
   getTestFunc <- function() {
-    ttest = tclvalue(ttestVar)
+    ttest <- tclvalue(ttestVar)
   }
   
   getGroupFunc <- function() {
@@ -97,11 +97,11 @@ ABarrayGUI <- function() {
   }
 
   getSNfunc <- function() {
-    sn = tclvalue(snVar)
+    sn <- tclvalue(snVar)
   }
 
   getDetectSampleFunc <- function() {
-    detectSample = tclvalue(detectSampleVar)
+    detectSample <- tclvalue(detectSampleVar)
   }
   
   executeFunc <- function() {
@@ -121,20 +121,20 @@ ABarrayGUI <- function() {
     group <- tclvalue(tkget(groupBox, as.numeric(tkcurselection(groupBox))))
     
     if(tclvalue(ttestVar) == 1) {
-      ttest = TRUE
+      ttest <- TRUE
     }
     if(tclvalue(imputeVar) == 1) {
-      impute = "avg"
+      impute <- "avg"
     }
     else if (tclvalue(imputeVar) == 2) {
-      impute = "knn"
+      impute <- "knn"
     }
     else {
-      impute = "None"
+      impute <- "None"
     }
 
-    snThresh = as.numeric(tclvalue(snVar))
-    detectSample = as.numeric(tclvalue(detectSampleVar))
+    snThresh <- as.numeric(tclvalue(snVar))
+    detectSample <- as.numeric(tclvalue(detectSampleVar))
 
     ##-postMsg(paste("GroupName:", groupNames, "\n"))
     postMsg(paste("Group:", group, "\n"))
@@ -156,11 +156,11 @@ ABarrayGUI <- function() {
     tkdestroy(tt)
   }
 
-  topFrame = tkframe(tt, borderwidth = 2)
+  topFrame <- tkframe(tt, borderwidth = 2)
 
-  usage = paste("\nTo perform data analysis on output from Applied Biosystems Genome Survey",
+  usage <- paste("\nTo perform data analysis on output from Applied Biosystems Genome Survey",
     "Array, please complete the following\n")
-  usageFrame = tkframe(topFrame, relief = "raised", bd = 2)
+  usageFrame <- tkframe(topFrame, relief = "raised", bd = 2)
   tkpack(tklabel(usageFrame, text = usage), anchor = "w")
   #tkgrid(tklabel(tt, text = usage))
   tkpack(usageFrame, fill = "x", expand = TRUE)

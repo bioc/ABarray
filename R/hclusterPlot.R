@@ -37,19 +37,18 @@
                   seq(low[2,1], mid [2,1], length=lower),
                   seq(mid[2,1], high[2,1], length=upper)
                   )/n
-    
-    
+
     hcolor <- rgb(lowcolor, midcolor, highcolor)
 
-    if(any(grep("cor", dist, ignore.case = T)) > 0) {
+    if(any(grep("cor", dist, ignore.case = TRUE)) > 0) {
       hv = heatmap(expr, distfun = function(x) (as.dist(1-abs(cor(t(x), use = "complete.obs")))),
           col = hcolor, main = paste(title, dist), margins = c(10,5),
-          cex.main = 0.5, cex.axis = 0.6, keep.dendro = T)
+          cex.main = 0.5, cex.axis = 0.6, keep.dendro = TRUE)
     }
     else {
       rv = as.dendrogram(hclust(as.dist(1-cor(t(expr), use = "complete.obs"))))
       hv = heatmap(expr, Rowv = rv, col = hcolor, main = paste(title, dist), margins = c(10,5),
-              cex.main = 0.5, cex.axis = 0.6, keep.dendro = T)
+              cex.main = 0.5, cex.axis = 0.6, keep.dendro = TRUE)
     }
     invisible(hv)
   }

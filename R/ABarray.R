@@ -116,6 +116,7 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
       colGeneID <- intersect(colGene, colID)
     }
   }      
+
   ##- Find out which columns contain signals, which contains S/N and flags
   dataColNames <- gsub("assay_normalized_signal", "assay_norm_sig", dataColNames,
                        ignore.case = TRUE)
@@ -150,12 +151,12 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
   col.sdev <- grep("SDEV", dataColNames, ignore.case = TRUE)
   col.cv <- grep("CV", dataColNames, ignore.case = TRUE)
 
-	#- Figure out what is the sample,assay, arrayname
+  #- Figure out what is the sample,assay, arrayname
   idx.arrayName <- grep("arrayName", colnames(pd), ignore.case = TRUE)
   idx.assayName <- grep("assayName", colnames(pd), ignore.case = TRUE)
   idx.sampleName <- grep("sampleName", colnames(pd), ignore.case = TRUE)
 
-   #- What ID to use, sampleName, or arrayName or assayName
+  #- What ID to use, sampleName, or arrayName or assayName
   idUse <- c()
   idType <- "sampleName"
   if(any(idx.arrayName)) {
@@ -172,7 +173,7 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
 
   cat("Using", idType, "to match experiment with signal in file:", dataFile, "\n")
 
-                                        #- group samples for boxplot
+  ##- group samples for boxplot
   color <- rep(c("blue", "cyan", "green", "lightblue", "purple", "pink", "brown", "magenta", "orange"), 20)
   color.label <- c()
    
@@ -195,8 +196,8 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
 												#- May not be same as in data file
 
   assayName.inData <- gsub("_SIGNAL", "", dataColNames[colSignal], ignore.case = TRUE)
-  assayName.inData <- gsub("Signal ", "", assayName.inData, ignore.case = T)
-  assayName.inData <- gsub("Signal.", "", assayName.inData, ignore.case = T)
+  assayName.inData <- gsub("Signal ", "", assayName.inData, ignore.case = TRUE)
+  assayName.inData <- gsub("Signal.", "", assayName.inData, ignore.case = TRUE)
   
   cat("AssayNames in dataFile:", dataFile, "\n")
   print(assayName.inData)
@@ -214,11 +215,11 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
 
    #- Figure out the order of signal, sn, and flag according to sampleName order
    #- grouped by group in the above process
-  ordSig = c()
-  ordSN = c()
-  ordFlag = c()
+  ordSig <- c()
+  ordSN <- c()
+  ordFlag <- c()
   for(i in seq(along = idUse)) {
-    theOrder =  grep(paste("\\b", idUse[i], sep = ""), assayName.inData)
+    theOrder <-  grep(paste("\\b", idUse[i], sep = ""), assayName.inData)
     if(length(theOrder) > 1) {
       cat("\nOne of the name is part of another name in your assay:\n")
       print(assayName.inData[theOrder])
@@ -226,22 +227,22 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
       return()
     }
     ordSig <- c(ordSig, theOrder)
-    theOrder = grep(idUse[i], dataColNames[colSN])
+    theOrder <- grep(idUse[i], dataColNames[colSN])
     if(length(theOrder) > 1) {
       cat("\nOne of the S/N name is part of another S/N name:\n")
       print(dataColNames[colSN][theOrder])
       cat("\nPlease fix it. Process stopped.\n")
       return()
     }
-    ordSN = c(ordSN, theOrder)
-    theOrder = grep(idUse[i], dataColNames[colFlag])
+    ordSN <- c(ordSN, theOrder)
+    theOrder <- grep(idUse[i], dataColNames[colFlag])
     if(length(theOrder) > 1) {
       cat("\nOne of the FLAG name is part of another FLAG name:\n")
       print(dataColNames[colFlag][theOrder])
       cat("\nPlease fix it. Process stopped.\n")
       return()
     }
-    ordFlag = c(ordFlag, theOrder)
+    ordFlag <- c(ordFlag, theOrder)
   }
   
   if(length(assayName.inData[-ordSig]) > 0) {
@@ -260,19 +261,19 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
    #- Let's read the data.
   cat("Reading data from", dataFile, "......\n    This may take several minutes....\n")
   flush.console()
-  ##-data <- read.table(dataFile, sep = sep, header = T, as.is = T)
+  ##-data <- read.table(dataFile, sep = sep, header = TRUE, as.is = TRUE)
   ##- Check to see if data contains comma as thousand seperator (not decimal point)
   colRead <- rep("NULL", dataColCount)
   colRead[colSignal[1]] <- "character"
-  data <- read.table(dataFile, header=T, sep=sep, nrow=5000, colClasses=colRead)
+  data <- read.table(dataFile, header=TRUE, sep=sep, nrow=5000, colClasses=colRead)
 
   if(any(grep(",", data[, 1]))) {
     colRead[c(colProbeID, colSignal, colSn, colFlag)] <- "character"
     if(colGeneID > 0) {
       colRead[colGeneID] <- "character"
     }
-    data <- read.table(dataFile, header=T, sep=sep, nrow=36000, colClasses=colRead, as.is=T,
-        check.names=F, comment.char="", na.string=c("NA", "MultipleValues", "Multiple Values"))
+    data <- read.table(dataFile, header=TRUE, sep=sep, nrow=36000, colClasses=colRead, as.is=TRUE,
+        check.names=FALSE, comment.char="", na.string=c("NA", "MultipleValues", "Multiple Values"))
     cat("Checking data format:")
     flush.console()
     data = apply(data, 2, function(x) {
@@ -286,52 +287,50 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
     if(colGeneID > 0) {
       colRead[colGeneID] <- "character"
     }
-    data <- read.table(dataFile, header=T, sep=sep, nrow=36000, colClasses=colRead,
-       check.names=F, comment.char = "", na.string = c("NA", "MultipleValues", "Multiple Values"))
+    data <- read.table(dataFile, header=TRUE, sep=sep, nrow=36000, colClasses=colRead,
+       check.names=FALSE, comment.char = "", na.string = c("NA", "MultipleValues", "Multiple Values"))
   }
   
   ##- Since some columns are skipped, we need to find which column contains signal, etc
   ##-
   dataColNames <- colnames(data)
-  colProbe <- grep("probe", dataColNames, ignore.case=T)
-  colGene <- grep("gene", dataColNames, ignore.case=T)
-  colSig <- grep("signal", dataColNames, ignore.case=T)
-  colSnr <- grep("S.N", dataColNames, ignore.case=T)
-  colFlg <- grep("flag", dataColNames, ignore.case=T)
+  colProbe <- grep("probe", dataColNames, ignore.case=TRUE)
+  colGene <- grep("gene", dataColNames, ignore.case=TRUE)
+  colSig <- grep("signal", dataColNames, ignore.case=TRUE)
+  colSnr <- grep("S.N", dataColNames, ignore.case=TRUE)
+  colFlg <- grep("flag", dataColNames, ignore.case=TRUE)
   
   colSigOrd <- c()
   colSnrOrd <- c()
   colFlgOrd <- c()
   for(assayID in idUse) {
-    colSigOrd <- c(colSigOrd, intersect(colSig, grep(assayID, dataColNames, ignore.case=T)))
-    colSnrOrd <- c(colSnrOrd, intersect(colSnr, grep(assayID, dataColNames, ignore.case=T)))
-    colFlgOrd <- c(colFlgOrd, intersect(colFlg, grep(assayID, dataColNames, ignore.case=T)))
+    colSigOrd <- c(colSigOrd, intersect(colSig, grep(assayID, dataColNames, ignore.case=TRUE)))
+    colSnrOrd <- c(colSnrOrd, intersect(colSnr, grep(assayID, dataColNames, ignore.case=TRUE)))
+    colFlgOrd <- c(colFlgOrd, intersect(colFlg, grep(assayID, dataColNames, ignore.case=TRUE)))
    }    
     
-
   cat("Finished data reading.\n")
   ##- Create a directory to put all the figures in
   resultDir <- paste("Result_", gsub(" ", "", group), "/", sep = "")
   if(! file.exists(resultDir)) {
     dir.create(resultDir, showWarnings = FALSE)
   }
-  dataDir = paste(resultDir, "DataResult/", sep = "")
-  pdfDir = paste(resultDir, "pdfFigure/", sep = "")
-  jpgDir = paste(resultDir, "jpgFigure/", sep = "")
-  if(! file.exists(dataDir)) {
+  dataDir <- paste(resultDir, "DataResult/", sep = "")
+  pdfDir <- paste(resultDir, "pdfFigure/", sep = "")
+  jpgDir <- paste(resultDir, "jpgFigure/", sep = "")
+  if(!file.exists(dataDir)) {
     dir.create(dataDir, showWarning = FALSE)
   }
-  if(! file.exists(pdfDir)) {
+  if(!file.exists(pdfDir)) {
     dir.create(pdfDir, showWarning = FALSE)
   }
-  if(! file.exists(jpgDir)) {
+  if(!file.exists(jpgDir)) {
     dir.create(jpgDir, showWarning = FALSE)
   }
-  
 
   cat("The results will be in the folder:", resultDir, "\n")
   flush.console()
-                                           #- Process controls
+  ##- Process controls
   controlType <- c("Buffer_Blank", "CL_ControlLadder", "CLFL_GridLandmark", "FL_ControlLadder", "FL_Fiducial_Cp",
                    "Hybridization_Control", "ICP_FLOnly_Control", "IVT_Kit_Control", "Manufacturing_Test_Control",
                    "Negative_Control", "Positive_Control", "RT_Kit_Control", "Blank")
@@ -350,12 +349,12 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
   else {
     geneID <- as.vector(data[, colProbeID])
     for(i in seq(along = controlType)) {
-      rowControl <- c(rowControl, grep(controlType, data[, colProbeID], ignore.case = T))
+      rowControl <- c(rowControl, grep(controlType, data[, colProbeID], ignore.case = TRUE))
     }
   }
   
   controlData <- data[rowControl,]
-                                        #- Remove control data for processing
+  ##- Remove control data for processing
   if(any(rowControl)) {
     data <- data[-rowControl,]
     geneID <- geneID[-rowControl]
@@ -385,9 +384,9 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
   for(i in seq(along = controlToExport)) {
     idxControlToExport <- c(idxControlToExport, grep(controlToExport[i], conData[, 1]))
   }
-  probeSortToExport <- sort(conData[idxControlToExport, colProbe], index = T)$ix
+  probeSortToExport <- sort(conData[idxControlToExport, colProbe], index = TRUE)$ix
   write.table(conData[idxControlToExport[probeSortToExport],],
-    file=paste(dataDir, "ControlRawData.csv", sep = ""), row.names=F, col.names=T, sep=",")
+    file=paste(dataDir, "ControlRawData.csv", sep = ""), row.names=FALSE, col.names=TRUE, sep=",")
    
   icpPlot(conData, pdfDir = pdfDir, jpgDir = jpgDir)
   if(showControlSN) {
@@ -403,10 +402,10 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
    
   cat("\nPerform basic analysis for non-normalized data ...\n")
                                         #- probes detectable
-  probeDetect <- apply(sn, 2, function(x) {sum(x >= snThresh, na.rm = T)})
+  probeDetect <- apply(sn, 2, function(x) {sum(x >= snThresh, na.rm = TRUE)})
   names(probeDetect) <- sampleName
-  ymin <- min(probeDetect, na.rm = T)
-  ymax <- max(probeDetect, na.rm = T)
+  ymin <- min(probeDetect, na.rm = TRUE)
+  ymax <- max(probeDetect, na.rm = TRUE)
   ydiff <- ymax - ymin
   fname <- paste("QC_DetectableProbeSN", snThresh, sep = "")
   
@@ -418,15 +417,14 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
   pdf(file = paste(pdfDir, fname, ".pdf", sep = ""), width = 10, height = 8)
   dev.control("enable")
   par(mar = c(chLength, 5, 4, 2))
-  barplot(probeDetect, ylim = c(ydiff, ymax + ydiff), xpd = F, las = 2,
+  barplot(probeDetect, ylim = c(ydiff, ymax + ydiff), xpd = FALSE, las = 2,
           col = color.label, main = paste("Probe Detectable (S/N >=", snThresh, ")"))
   text(seq(arrayCount) * 1.2 - 0.5, probeDetect + ydiff / 5, labels = pctLabel)
   savejpg(paste(jpgDir, fname, sep = ""), width = 800, height = 600)
   dev.off()
   probeDetect <- NULL
   
-  ##- Create new exprSet
-  ##-esetUse <- new("exprSet", exprs = rawSig, se.exprs = sn, phenoData = pd)
+  ##- Create new ExpressionSet
   pheno <- as(pd, "AnnotatedDataFrame")
   esetUse <- new("ExpressionSet", phenoData=pheno, exprs=rawSig, snDetect=sn, flags=flag)
 
@@ -470,7 +468,7 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
                   "   from replicate arrays within the same subgroup (",
                   paste(grpMember, collapse = ", "), ").", sep = "")
               filename <- paste(dataDir, "ProbeImputed_", group, ".csv", sep = "")
-              write.table(rownames(rawSig)[rowImputed], file = filename, sep = ",", row.names = F, col.names = F)
+              write.table(rownames(rawSig)[rowImputed], file = filename, sep = ",", row.names = FALSE, col.names = FALSE)
               cat("\nThe imputed probes were written to file:", filename, "\n")
             }
             else {
@@ -486,7 +484,7 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
       csvName <- paste("Expression_", normMethod[i], "Normalized.csv", sep = "")
       normExp <-  cbind(ProbeID = rownames(normData), GeneID = geneID, normData, sn, flag)
       write.table(normExp, file = paste(dataDir, csvName, sep = ""), sep = ",",
-                  col.names = T, row.names = F)
+                  col.names = TRUE, row.names = FALSE)
       cat("\n", normMethod[i], "normalized data was saved to:\n    ", paste(dataDir, csvName, sep = ""), "\n")
       flush.console()
       normExp <- NULL
@@ -494,7 +492,6 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
       gc()
 
       colnames(normData) = colnames(rawSig)
-      ##-eset <- new("exprSet", exprs = normData, se.exprs = sn, phenoData = pd)
       eset <- new("ExpressionSet", phenoData=pheno, exprs=normData, snDetect=sn, flags=flag)
       if(normMethod[i] == normUse) {
         esetUse <- eset

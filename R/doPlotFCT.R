@@ -9,11 +9,11 @@ function(eset, group, grpMember, order1=NULL,order2=NULL, detectSample = 0.5, sn
 
    #- snThresh S/N threshold value for filtering
    #- detectSample Percentage of samples that meet snThresh for t test analysis.
-  paired = FALSE
+  paired <- FALSE
   filePrefix <- paste("DetectPct", detectSample * 100, sep = "")
-  if(! is.null(order1) && ! is.null(order2)) {
+  if(!is.null(order1) && !is.null(order2)) {
     filePrefix <- paste("paired_", filePrefix, sep = "")
-    paired = TRUE
+    paired <- TRUE
     if(length(order1) != length(order2)) {
       cat("Number of samples for order1 and order2 is not equal,\n",
           "paired t test cannot be performed.\n")
@@ -21,29 +21,29 @@ function(eset, group, grpMember, order1=NULL,order2=NULL, detectSample = 0.5, sn
     }
   }
 
-  probeLimit = 800
-  binColor = c("cyan", "green", "blue", "black", "red")
+  probeLimit <- 800
+  binColor <- c("cyan", "green", "blue", "black", "red")
   fcBin <- list("FC 1.0-1.2" = c(1.0, 1.2), "FC 1.2-1.6" = c(1.2, 1.6),
                 "FC 1.6-2.0" = c(1.6, 2.0),
                 "FC 2.0-4.0" = c(2.0, 4.0), "FC > 4" = c(4.0, Inf))
-  pValPreset = c(0.01, 0.05)
-  fdrPreset = c(0.01, 0.05, 0.1, 0.25)
+  pValPreset <- c(0.01, 0.05)
+  fdrPreset <- c(0.01, 0.05, 0.1, 0.25)
   
   #- Process additional arguments for sweave and hidden variables, ...
-  addParam = list(...)
+  addParam <- list(...)
   if(is.element("probeLimit", names(addParam))) {
-    probeLimit = addParam$probeLimit
+    probeLimit <- addParam$probeLimit
   }
   if(is.element("binColor", names(addParam))) {
     if(length(addParam$binColor) == length(fcBin)) {
-      binColor = addParam$binColor
+      binColor <- addParam$binColor
     }
   }
   if(is.element("pValPreset", names(addParam))) {
-    pValPreset = addParam$pValPreset
+    pValPreset <- addParam$pValPreset
   }
   if(is.element("fdrPreset", names(addParam))) {
-    fdrPreset = addParam$fdrPreset
+    fdrPreset <- addParam$fdrPreset
   }
 
   
@@ -80,16 +80,16 @@ function(eset, group, grpMember, order1=NULL,order2=NULL, detectSample = 0.5, sn
   if(! file.exists(resultDir)) {
     dir.create(resultDir, showWarnings = FALSE)
   }
-  dataDir = paste(resultDir, "DataResult/", sep = "")
-  pdfDir = paste(resultDir, "pdfFigure/", sep = "")
-  jpgDir = paste(resultDir, "jpgFigure/", sep = "")
-  if(! file.exists(dataDir)) {
+  dataDir <- paste(resultDir, "DataResult/", sep = "")
+  pdfDir <- paste(resultDir, "pdfFigure/", sep = "")
+  jpgDir <- paste(resultDir, "jpgFigure/", sep = "")
+  if(!file.exists(dataDir)) {
     dir.create(dataDir, showWarning = FALSE)
   }
-  if(! file.exists(pdfDir)) {
+  if(!file.exists(pdfDir)) {
     dir.create(pdfDir, showWarning = FALSE)
   }
-  if(! file.exists(jpgDir)) {
+  if(!file.exists(jpgDir)) {
     dir.create(jpgDir, showWarning = FALSE)
   }
   
@@ -112,48 +112,48 @@ function(eset, group, grpMember, order1=NULL,order2=NULL, detectSample = 0.5, sn
           }      
           probeCount <- length(idxProbe)
           esetUse <- eset[idxProbe,]
-          colMember1 = which(pData(esetUse)[, group] == member[1])
-          colMember2 = which(pData(esetUse)[, group] == member[2])
-          sd1 = sd(t(exprs(esetUse[, colMember1])), na.rm = T)
-          sd2 = sd(t(exprs(esetUse[, colMember2])), na.rm = T)
-          rowSd1 = union(which(is.na(sd1)), which(sd1 == 0))
-          rowSd2 = union(which(is.na(sd2)), which(sd2 == 0))
-          rowSd = union(rowSd1, rowSd2)
+          colMember1 <- which(pData(esetUse)[, group] == member[1])
+          colMember2 <- which(pData(esetUse)[, group] == member[2])
+          sd1 <- sd(t(exprs(esetUse[, colMember1])), na.rm = TRUE)
+          sd2 <- sd(t(exprs(esetUse[, colMember2])), na.rm = TRUE)
+          rowSd1 <- union(which(is.na(sd1)), which(sd1 == 0))
+          rowSd2 <- union(which(is.na(sd2)), which(sd2 == 0))
+          rowSd <- union(rowSd1, rowSd2)
           if(length(rowSd) > 0) {
             cat(length(rowSd), "probes had sdev = 0, they were removed in the t test\n")
             print(featureNames(esetUse)[rowSd])
-            esetUse = esetUse[-rowSd,]
-            idxProbe = idxProbe[-rowSd]
-            probeCount = length(idxProbe)        
+            esetUse <- esetUse[-rowSd,]
+            idxProbe <- idxProbe[-rowSd]
+            probeCount <- length(idxProbe)        
           }
            #- Calculate fold change and t test using simpleaffy
            #-fct <- get.fold.change.and.t.test(esetUse, group, member, a.order=order1, b.order=order2)
-          tRes = apply(exprs(esetUse), 1, function(x) {
+          tRes <- apply(exprs(esetUse), 1, function(x) {
             if(paired) {
-              t.test(x[colMember1[order1]], x[colMember2[order2]], na.rm = T, paired = T)$p.value
+              t.test(x[colMember1[order1]], x[colMember2[order2]], na.rm = TRUE, paired = TRUE)$p.value
             }
             else {
-              t.test(x[colMember1], x[colMember2], na.rm = T)$p.value
+              t.test(x[colMember1], x[colMember2], na.rm = TRUE)$p.value
             }
           })
-          fcRes = apply(exprs(esetUse), 1, function(x) {
+          fcRes <- apply(exprs(esetUse), 1, function(x) {
             if(paired) {
-              mean(x[colMember1[order1]] - x[colMember2[order2]], na.rm = T)
+              mean(x[colMember1[order1]] - x[colMember2[order2]], na.rm = TRUE)
             }
             else {
-              mean(x[colMember1], na.rm = T) - mean(x[colMember2], na.rm = T)
+              mean(x[colMember1], na.rm = TRUE) - mean(x[colMember2], na.rm = TRUE)
             }
           })
       
        #- Volcano plot
           print("Creating volcano plot ...")
           for(i in seq(along = pValPreset)) {
-            fileName = paste("ST_", filePrefix, "VolcanoPlot_p", sub("0.", "", pValPreset[i]), memberName, sep = "")
+            fileName <- paste("ST_", filePrefix, "VolcanoPlot_p", sub("0.", "", pValPreset[i]), memberName, sep = "")
             pdf(file = paste(pdfDir, fileName, ".pdf", sep = ""), width = kWidth/100, height = kHeight/100)
             dev.control("enable")
-            idxPval = which(tRes <= pValPreset[i])
-            idxFC = which(abs(fcRes) >= 1)
-            idxUse = intersect(idxPval, idxFC)
+            idxPval <- which(tRes <= pValPreset[i])
+            idxFC <- which(abs(fcRes) >= 1)
+            idxUse <- intersect(idxPval, idxFC)
             plot(fcRes[-idxUse], -log10(tRes[-idxUse]), yaxt = "n", pch = 16, col = "blue",
                  xlab = paste("log2 of FC", memberName), ylab = "p values",
                  main = paste("Volcano Plot ", memberName))
@@ -216,16 +216,16 @@ function(eset, group, grpMember, order1=NULL,order2=NULL, detectSample = 0.5, sn
        #- then, make plots after FDR adjustment
             if(length(idxProbe) > 1) {
                  #fctUse <- fct[idxProbe,]
-              tResUse = tRes[idxProbe]
-              fcResUse = fcRes[idxProbe]
-              rowMean <- rowMeans(exprs(esetUse[idxProbe,]), na.rm = T)
+              tResUse <- tRes[idxProbe]
+              fcResUse <- fcRes[idxProbe]
+              rowMean <- rowMeans(exprs(esetUse[idxProbe,]), na.rm = TRUE)
                                         #- Divide fc into 5 bins:
                                         #- fc 1 - 1.2;  1.2 - 1.6;  1.6 - 2.0;  2.0 - 4.0; > 4.0
-              idxBinProbe = list()
+              idxBinProbe <- list()
               for(bin in seq(along = fcBin)) {
-                theIdx = intersect(which(abs(fcResUse) > log2(fcBin[[bin]][1])),
+                theIdx <- intersect(which(abs(fcResUse) > log2(fcBin[[bin]][1])),
                   which(abs(fcResUse) <= log2(fcBin[[bin]][2])))
-                idxBinProbe[[bin]] = theIdx
+                idxBinProbe[[bin]] <- theIdx
               }
                                         #- Create Fold Change plot
               print(paste("Creating Fold Change plot for:", memberName, fdr, " ..."))
@@ -237,7 +237,7 @@ function(eset, group, grpMember, order1=NULL,order2=NULL, detectSample = 0.5, sn
                    xlab = "Average of Log2 Signal", ylab = "Fold Change (Log2)",
                    main = paste("Average FC ", memberName, " (", length(idxProbe), " probes) ",
                      fdr, sep = ""))
-              legendText = rep("", length(fcBin))
+              legendText <- rep("", length(fcBin))
               for(bin in seq(along = fcBin)) {
                 points(rowMean[idxBinProbe[[bin]]], fcResUse[idxBinProbe[[bin]]],
                        col = binColor[bin], pch = 21, bg = binColor[bin])
@@ -259,7 +259,7 @@ function(eset, group, grpMember, order1=NULL,order2=NULL, detectSample = 0.5, sn
                                     dist[step], sep = "")
                   pdf(file = paste(pdfDir, filename, ".pdf", sep = ""), width = kWidth/100, height = kWidth/100)
                   dev.control("enable")
-                  hv = hclusterPlot(exps, paste("Cluster ", fdr, group), dist = dist[step])
+                  hv <- hclusterPlot(exps, paste("Cluster ", fdr, group), dist = dist[step])
                   savejpg(paste(jpgDir, filename, sep = ""), width = kWidth, height = kWidth)
                   dev.off()
               

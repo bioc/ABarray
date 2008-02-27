@@ -16,7 +16,7 @@ function(sn, snThresh, pdata, group, grpMember) {
 		memberCount <- length(which(pd[, colnames(pd) == group] == grpMember[i]))
 		idx.mc <- which(pd[, colnames(pd) == group] == grpMember[i])
 
-		snSum <- apply(sn[, idx.mc] >= snThresh, 1, sum, na.rm = T)
+		snSum <- apply(sn[, idx.mc] >= snThresh, 1, sum, na.rm = TRUE)
 
 		snT[, i] <- snSum / memberCount 
 	}

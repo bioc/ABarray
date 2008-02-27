@@ -13,8 +13,8 @@ function (eData, snr, method = "quantile", snThresh = 3, ties = TRUE)
   if (eDim[2] == 1) 
     return(eData)
 
-  theScale = rep(1, eDim[2])
-  targetMedian = median(as.vector(eData), na.rm = T)
+  theScale <- rep(1, eDim[2])
+  targetMedian <- median(as.vector(eData), na.rm = TRUE)
   
   ##- No normalization
   if(method == "none") {
@@ -66,46 +66,46 @@ function (eData, snr, method = "quantile", snThresh = 3, ties = TRUE)
   }
   
   else if(method == "median") {
-    theMedian = apply(eData, 2, median, na.rm = T)
-    theScale = targetMedian / theMedian
+    theMedian <- apply(eData, 2, median, na.rm = TRUE)
+    theScale <- targetMedian / theMedian
   }
   else if(method == "mean") {
-    theMean = colMeans(eData, na.rm = T)
-    theScale = targetMedian / theMean
+    theMean <- colMeans(eData, na.rm = TRUE)
+    theScale <- targetMedian / theMean
   }
   else if(method == "trimMean") {
-    theMean = apply(eData, 2, function(x) {
-      lowUp = quantile(x, probs = c(0.05, 0.95), na.rm = T)
-      idxUse = intersect(which(x > lowUp[1]), which( x < lowUp[2]))
-      mean(x[idxUse], na.rm = T)
+    theMean <- apply(eData, 2, function(x) {
+      lowUp <- quantile(x, probs = c(0.05, 0.95), na.rm = TRUE)
+      idxUse <- intersect(which(x > lowUp[1]), which( x < lowUp[2]))
+      mean(x[idxUse], na.rm = TRUE)
     })
-    theScale = targetMedian / theMean
+    theScale <- targetMedian / theMean
   }
   else if(method == 'trimAMean') {
     if(missing(snr)) {
       print("S/N ratio not provided. Regular trimmed mean normalization will be provided.")
-      theMean = apply(eData, 2, function(x) {
-        lowUp = quantile(x, probs = c(0.05, 0.95), na.rm = T)
-        idxUse = intersect(which(x > lowUp[1]), which( x < lowUp[2]))
-        mean(x[idxUse], na.rm = T)
+      theMean <- apply(eData, 2, function(x) {
+        lowUp <- quantile(x, probs = c(0.05, 0.95), na.rm = TRUE)
+        idxUse <- intersect(which(x > lowUp[1]), which( x < lowUp[2]))
+        mean(x[idxUse], na.rm = TRUE)
       })
-      theScale = targetMedian / theMean
+      theScale <- targetMedian / theMean
     }
     else {
-      theMean = NULL
+      theMean <- NULL
       for(i in 1:eDim[2]) {
-        idxA = which(snr[, i] < snThresh)
-        lowUp = quantile(eData[-idxA,i], probs = c(0.025, 0.975), na.rm = T)
-        idxUse = intersect(which(eData[-idxA,i] > lowUp[1]), which(eData[-idxA, i] < lowUp[2]))
-        theMean[i] = mean(eData[idxUse, i], na.rm = T)
+        idxA <- which(snr[, i] < snThresh)
+        lowUp <- quantile(eData[-idxA,i], probs = c(0.025, 0.975), na.rm = TRUE)
+        idxUse <- intersect(which(eData[-idxA,i] > lowUp[1]), which(eData[-idxA, i] < lowUp[2]))
+        theMean[i] <- mean(eData[idxUse, i], na.rm = TRUE)
       }
-      theScale = targetMedian / theMean
+      theScale <- targetMedian / theMean
     }
   } 
   
-  retData = eData
+  retData <- eData
   for(i in seq(along = theScale)) {
-    retData[, i] = eData[, i] * theScale[i]
+    retData[, i] <- eData[, i] * theScale[i]
   }
   return(retData)
 }

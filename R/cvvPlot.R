@@ -4,22 +4,22 @@
 
 "cvvPlot" <-
 function(data, name = "") {
-	sd <- apply(data, 1, function(x) {sd(x, na.rm = T)})
-	mean <- rowMeans(data, na.rm = T)
+	sd <- apply(data, 1, function(x) {sd(x, na.rm = TRUE)})
+	mean <- rowMeans(data, na.rm = TRUE)
 	cvValue <- sd / abs(mean)
 
 	#- Let's create cv plot here
 	title = paste("CV plot ", name, sep = "")
 
-	y.max <- max(cvValue, na.rm = T)
+	y.max <- max(cvValue, na.rm = TRUE)
 
 	#- Calculate position for text information
-	txt <- c(paste("Mean  = ", format(mean(cvValue, na.rm = T) * 100, digits = 2), "%", sep = ""), 
-            paste("Median= ", format(median(cvValue, na.rm = T) * 100, digits = 2), "%", sep=""),
-            paste("Max   = ", format(max(cvValue, na.rm = T) * 100, digits = 4), "%", sep = ""))
+	txt <- c(paste("Mean  = ", format(mean(cvValue, na.rm = TRUE) * 100, digits = 2), "%", sep = ""), 
+            paste("Median= ", format(median(cvValue, na.rm = TRUE) * 100, digits = 2), "%", sep=""),
+            paste("Max   = ", format(max(cvValue, na.rm = TRUE) * 100, digits = 4), "%", sep = ""))
 
 	#- Check to see if mean is in log scale
-	if(mean(mean, na.rm = T) > 100) {
+	if(mean(mean, na.rm = TRUE) > 100) {
 		mean <- log2(mean)
 	}
 
@@ -28,7 +28,7 @@ function(data, name = "") {
 	abline(v = 10, col = "green")
 	
 	#- Draw a line at 25%, 50%, and 75% quantile cv
-	cv.q <- quantile(cvValue, na.rm = T)
+	cv.q <- quantile(cvValue, na.rm = TRUE)
 	abline(h = cv.q[3], col = "red")
 	abline(h = cv.q[4], col = "purple")
 

@@ -5,13 +5,13 @@ function (x, y = NULL, snThresh = 3, labels = colnames(x), log.it = FALSE, span 
     family.loess = "gaussian", digits = 3, line.col = 2, main = "MA plot",  ...) 
 {
   J <- dim(x)[2]
-  rowna = c()
+  rowna <- c()
   for(i in seq(J)) {
-    rowna = union(rowna, which(is.na(x[, i])))
-    rowna = union(rowna, which(is.infinite(x[,i])))
+    rowna <- union(rowna, which(is.na(x[, i])))
+    rowna <- union(rowna, which(is.infinite(x[,i])))
   }
   if(length(rowna) > 0) {
-    x = x[-rowna,]
+    x <- x[-rowna,]
   }
   
   if (log.it) 
@@ -26,9 +26,9 @@ function (x, y = NULL, snThresh = 3, labels = colnames(x), log.it = FALSE, span 
   }
 
     #- Convert S/N ratio data to see if they are above cutoff
-  if ( ! is.null(y) ) {
+  if (!is.null(y) ) {
     if(length(rowna) > 0) {
-      y = y[-rowna,]
+      y <- y[-rowna,]
     }
     y <- y >= snThresh
   }
@@ -36,12 +36,10 @@ function (x, y = NULL, snThresh = 3, labels = colnames(x), log.it = FALSE, span 
   frame()
   old.par <- par(no.readonly = TRUE)
   on.exit(par(old.par))
-  par(mfrow = c(J, J), mgp = c(0, 0.2, 0), mar = c(1, 1, 1, 
-                                             1), oma = c(1, 1.4, 2, 1))
+  par(mfrow = c(J, J), mgp = c(0, 0.2, 0), mar = c(1, 1, 1, 1), oma = c(1, 1.4, 2, 1))
   for (j in 1:(J - 1)) {
     par(mfg = c(j, j))
-    plot(1, 1, type = "n", xaxt = "n", yaxt = "n", xlab = "", 
-         ylab = "")
+    plot(1, 1, type = "n", xaxt = "n", yaxt = "n", xlab = "", ylab = "")
     text(1, 1, labels[j], cex = 1)
     for (k in (j + 1):J) {
       par(mfg = c(j, k))
@@ -55,13 +53,13 @@ function (x, y = NULL, snThresh = 3, labels = colnames(x), log.it = FALSE, span 
       
       xx[xx == -Inf] < NA
             
-				#- Calculate correlation coefficient for signals S/N >= snThresh
+	  ##- Calculate correlation coefficient for signals S/N >= snThresh
       r <- format(cor(x[idx, j], x[idx, k], use = "complete.obs"), digits = digits)
       
       subset <- sample(1:length(x), min(c(10000, length(x))))
       mamaplot(xx, yy, idx, tck = 0, subset = subset, 
                pch = ".",  xlab = "", ylab = "", tck = 0, ylim = c(-3.5, 3.5),
-               xlim = c(min(xx, na.rm = T) - 0.5, max(xx, na.rm = T) + 0.5), ...)
+               xlim = c(min(xx, na.rm = TRUE) - 0.5, max(xx, na.rm = TRUE) + 0.5), ...)
       
       abline(1, 0, col = "red")
       abline(-1, 0, col = "red")
