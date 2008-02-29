@@ -519,10 +519,11 @@ test results are written to file as well if it is performed.
 \subsection{Requred Data and Function Arguments}
 \begin{itemize}
 \item
-An \Robject{ExpressionSet} object. The S/N ratio information is stored in \Robject{se.exprs}
-slot. This will automatically be created from \Rfunction{ABarray} in \Rpackage{ABarray}
-package. The analysis will filter probes based on S/N >= 3 in 75\% of samples. If S/N
-is not available, all probes will be used for analysis (no filtering will be applied).
+An \Robject{ExpressionSet} object. The S/N ratio information is stored in
+\Robject{assayDataElement(eset, "snDetect")}. This will automatically be created from
+\Rfunction{ABarray} in \Rpackage{ABarray} package. The analysis will filter probes based
+on S/N >= 3 in 75\% of samples. If S/N is not available, all probes will be used for
+analysis (no filtering will be applied).
 \item
 An \Rfunarg{group} parameter. The group is a factor that t test should be performed on.
 The name of the group should correspond to one of the names in experiment design file
@@ -664,11 +665,11 @@ test, the fold changes will be fold changes of averaged expression values.
 \subsection{Required Data and Function Arguments}
 \begin{itemize}
 \item
-An \Robject{ExpressionSet} object. The S/N ratio information is stored in \Robject{se.exprs}
-slot. This will automatically be created from \Rfunction{ABarray} in \Rpackage{ABarray}
-package. The analysis will filter probes based on S/N and percentage of samples
-detectable within subgroups. If S/N is not available, all probes will be used for
-analysis (no filtering will be applied).
+An \Robject{ExpressionSet} object. The S/N ratio information is stored in
+\Robject{assayDataElement(eset, "snDetect")}. This will automatically be created
+from \Rfunction{ABarray} in \Rpackage{ABarray} package. The analysis will filter
+probes based on S/N and percentage of samples detectable within subgroups. If S/N
+is not available, all probes will be used for analysis (no filtering will be applied).
 \item
 An \Rfunarg{group} parameter. The group is a factor that \textit{t} test should be
 performed on. The name of the group should correspond to one of the names in
@@ -1009,8 +1010,8 @@ about functionality of \Rfunction{ABarray}, refer to document from
 in \Rpackage{Bioconductor} project. See www.bioconductor.org for more
 information about other packages.
 
-The S/N ratio information is stored in \Robject{se.exprs}
-slot. This will automatically be created from \Rfunction{ABarray} in \Rpackage{ABarray}
+The S/N ratio information is stored in \Robject{assayDataElement(eset, "snDetect")}.
+This will automatically be created from \Rfunction{ABarray} in \Rpackage{ABarray}
 package. The analysis will filter probes based on S/N >= 3 in 75\% of samples. If S/N
 is not available, all probes will be used for analysis (no filtering will be applied).
 

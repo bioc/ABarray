@@ -94,11 +94,12 @@ ABarray(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = "
 }
 
 \value{
-  An \code{ExpressionSet} object. The \code{exprs} slot will be populated with
-  normalized signals, \code{se.exprs} slot will be populated with
-  S/N ratio values, and the \code{phenoData} slot will be populated with
-  information from \code{designFile}. Further analysis can be performed
-  on the \code{ExpressionSet} object with various R and Bioconductor packages.
+  An \code{ExpressionSet} object. The \code{assayDataElement(eset, "exprs")}
+  will be populated with normalized signals, \code{assayDataElement(eset, "snDetect")}
+  will be populated with S/N ratio values, and the \code{phenoData} slot will
+  be populated with information from \code{designFile}. Further analysis can
+  be performed on the \code{ExpressionSet} object with various R and Bioconductor
+  packages.
 }
 
 \author{Y Andrew Sun <sunya@appliedbiosystems.com>}

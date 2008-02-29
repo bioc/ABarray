@@ -10,7 +10,6 @@ function(eset, snThresh = 3, group, grpMember) {
 	}
 	subgrpCount <- length(grpMember)
 
-	##-sn <- se.exprs(eset)
 	sn <- assayDataElement(eset, "snDetect")
 
 	snT <- matrix(nrow = dim(sn)[1], ncol = subgrpCount) 

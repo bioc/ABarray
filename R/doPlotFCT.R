@@ -69,7 +69,6 @@ function(eset, group, grpMember, order1=NULL,order2=NULL, detectSample = 0.5, sn
 
   #- Check to see if there is S/N ratio values
   snPresent <- TRUE
-  ##-sn <- se.exprs(eset)
   sn <- assayDataElement(eset, "snDetect")
   if(dim(sn)[2] <= 1 || sum(is.na(sn[,])) > 1) {
     snPresent <- FALSE
