@@ -12,7 +12,7 @@ concord(sn, snThresh = 3)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{sn}{ a matrix containing s/n ratio }
-  \item{snThresh} {S/N threshold to use, default = 3}
+  \item{snThresh}{S/N threshold to use, default = 3}
 }
 \value{
   a matrix with the concordance
