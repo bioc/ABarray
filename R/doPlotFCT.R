@@ -4,9 +4,6 @@
 
 "doPlotFCT" <-
 function(eset, group, grpMember, order1=NULL,order2=NULL, detectSample = 0.5, snThresh = 3, ...) {
-  require(Biobase)
-  require(multtest)
-
    #- snThresh S/N threshold value for filtering
    #- detectSample Percentage of samples that meet snThresh for t test analysis.
   paired <- FALSE

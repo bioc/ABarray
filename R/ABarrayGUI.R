@@ -2,7 +2,6 @@
 
 #- Open up a GUI interface to take the parameters and pass to ABarray function.
 ABarrayGUI <- function() {
-  require(tcltk)
   options(show.error.messages = TRUE)
   
   tt <- tktoplevel()
@@ -145,8 +144,6 @@ ABarrayGUI <- function() {
     postMsg(paste("snThresh:", snThresh, "\n"))
     postMsg(paste("detectSample:", detectSample, "\n"))
 
-    library(ABarray)
-    library(Biobase)
     setwd(dirname(designFile))
     eset <- ABarray(dataFile, designFile, group, test = ttest, impute = impute,
                    snThresh = snThresh, detectSample = detectSample)

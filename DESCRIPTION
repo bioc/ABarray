@@ -5,7 +5,8 @@ Version: 1.17.0
 Date: 2006-02-11
 Author: Yongming Andrew Sun 
 Maintainer: Yongming Andrew Sun <sunya@appliedbiosystems.com>
-Depends: Biobase, multtest, tcltk
+Imports: Biobase, graphics, grDevices, methods, multtest, stats,
+         tcltk, utils
 Suggests: limma, LPE
 Description: Automated pipline to perform gene expression analysis for Applied
   Biosystems Genome Survey Microarray (AB1700) data format. Functions include

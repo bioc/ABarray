@@ -4,8 +4,6 @@
 
 "doLPE" <-
 function(eset, group, member, name = "", snThresh = 3, detectSample = 0.5) {
-	require(LPE)
-
   cat("Performing LPE analysis for", group, "...\n")
   flush.console()
 	pd <- pData(eset)

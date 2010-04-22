@@ -5,7 +5,6 @@
 "doVennDiagram" <-
 function (a, b, c = NULL, names, ...)
 {
-  require(limma)
   if (  is.null(c) ) {
     list.all <- union(a, b)
     list.mat <- matrix(0, nrow = length(list.all), ncol = 2)

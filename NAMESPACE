@@ -1,0 +1,34 @@
+import(methods)
+
+importMethodsFrom(Biobase, exprs, featureNames, geneNames, pData,
+                  "pData<-")
+importFrom(Biobase, assayDataElement)
+
+importFrom(graphics, abline, axis, barplot, box, boxplot, frame, image,
+           layout, legend, lines, mtext, pairs, par, pie, plot, points,
+           rect, strwidth, text, title)
+
+importFrom(grDevices, bmp, col2rgb, dev.control, dev.copy, dev.off,
+           jpeg, pdf, rainbow, rgb)
+
+importFrom(multtest, mt.rawp2adjp)
+
+importFrom(stats, aov, approx, as.dendrogram, as.dist, cor, hclust,
+           heatmap, loess, median, p.adjust, pnorm, quantile, sd,
+           t.test)
+
+importFrom(tcltk, tclvalue, "tclvalue<-", tclVar, tkbutton,
+           tkcheckbutton, tkconfigure, tkcurselection, tkdelete,
+           tkdestroy, tkentry, tkframe, tkget, tkgetOpenFile, tkgrid,
+           tkinsert, tklabel, tklistbox, tkpack, tkradiobutton,
+           tkscrollbar, tkselection.set, tkset, tktext, tktoplevel,
+           tkwm.focusmodel, tkwm.title, tkyview)
+
+importFrom(utils, data, flush.console, read.table, write.csv,
+           write.table)
+
+export(ABarray, ABarrayGUI, calcsn, concord, cvv, cvvPlot, doANOVA,
+       doLPE, doPlotEset, doPlotFCT, doVennDiagram, drawVennDiagram,
+       getMemberEset, getPantherMap, hclusterPlot, icpPlot, imputeFlag,
+       lpe.fdr.BH, mamaplot, matrixPlot, mvaPair2, panel.cor, panel.scatter,
+       qnNormalize, rgcolorsfunc, savejpg, scaleColorBar, snSummary)

@@ -58,8 +58,6 @@ function(dataFile, designFile, group, test = TRUE, impute = "avg", normMethod = 
     esetOnly <- addParam$esetOnly
   }
   
-  require(Biobase)
-   
   ##- Find out what is the field sepeartor, tab or comma
   sep <- "\t"
   if(any(grep(".csv", designFile))) {
