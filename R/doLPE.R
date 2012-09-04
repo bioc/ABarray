@@ -30,7 +30,7 @@ function(eset, group, member, name = "", snThresh = 3, detectSample = 0.5) {
 	var.b <- baseOlig.error(exprs(eset[idx.prob, idx.b]), q = 0.02)
 
 	lpe.var <- data.frame(lpe(exprs(eset[idx.prob, idx.b]), exprs(eset[idx.prob, idx.a]),
-									var.b, var.a, probe.set.name = geneNames(eset[idx.prob,])))
+									var.b, var.a, probe.set.name = featureNames(eset[idx.prob,])))
 
 	lpe.fdr <- lpe.fdr.BH(lpe.var)
 

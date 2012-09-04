@@ -1,6 +1,6 @@
 import(methods)
 
-importMethodsFrom(Biobase, exprs, featureNames, geneNames, pData,
+importMethodsFrom(Biobase, exprs, featureNames, pData,
                   "pData<-")
 importFrom(Biobase, assayDataElement)
 
