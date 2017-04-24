@@ -1,7 +1,7 @@
 Package: ABarray
 Title: Microarray QA and statistical data analysis for Applied Biosystems
   Genome Survey Microrarray (AB1700) gene expression data.
-Version: 1.44.0
+Version: 1.45.0
 Date: 2006-02-11
 Author: Yongming Andrew Sun 
 Maintainer: Yongming Andrew Sun <sunya@appliedbiosystems.com>
